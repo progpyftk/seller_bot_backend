@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SellerBot</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>RailsVuejs</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <!--Google Font-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'hello_vue' %>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

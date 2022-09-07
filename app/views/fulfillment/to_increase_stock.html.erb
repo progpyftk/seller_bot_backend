@@ -1,0 +1,31 @@
+<h1>Fulfillment#to_increase_stock</h1>
+<div class="container d-grid gap-2">
+  <div class="p-2 bg-light border">
+    <table class="table table-bordered">
+      <thead>
+        <tr class="text-center">
+          <th>Title</th>
+          <th>ID</th>
+          <th>Seller ID</th>
+          <th>Stock</th>
+          <th>Logistic</th>
+          <th>Add Stock</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @items_need_increase_stock.each do |item| %>
+          <tr class="text-center ">
+            <td class="align-middle"><%= item.title %></td>
+            <td class="align-middle"><%= item.ml_item_id %></td>
+            <td class="align-middle"><%= item.seller.id %></td>
+            <td class="align-middle"><%= item.available_quantity%></td>
+            <td class="align-middle"><%= item.logistic_type%></td>
+            <td>
+              teste
+            </td>
+          <% end %>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
