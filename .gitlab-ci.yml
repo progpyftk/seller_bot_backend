@@ -1,11 +1,12 @@
-before_script:
-  - echo "deb http://toolbelt.heroku.com/ubuntu ./" > /etc/apt/sources.list.d/heroku.list
-  - wget -O- https://toolbelt.heroku.com/apt/release.key | apt-key add
-  - apt-get update
-  - apt-get install -y heroku-toolbelt
-  - gem install dpl
+default:
+  before_script:
+    - echo "deb http://toolbelt.heroku.com/ubuntu ./" > /etc/apt/sources.list.d/heroku.list
+    - wget -O- https://toolbelt.heroku.com/apt/release.key | apt-key add
+    - apt-get update
+    - apt-get install -y heroku-toolbelt
+    - gem install dpl
 
- staging:
+staging:
   stage: deploy
   variables:
     HEROKU_API_KEY: $HEROKU_STAGING_API_KEY
