@@ -1,0 +1,26 @@
+before_script:
+  - echo "deb http://toolbelt.heroku.com/ubuntu ./" > /etc/apt/sources.list.d/heroku.list
+  - wget -O- https://toolbelt.heroku.com/apt/release.key | apt-key add
+  - apt-get update
+  - apt-get install -y heroku-toolbelt
+  - gem install dpl
+
+ staging:
+  stage: deploy
+  variables:
+    HEROKU_API_KEY: $HEROKU_STAGING_API_KEY
+  script:
+    - dpl --provider=heroku --app=staging-seller_bot_backend --api-key=$HEROKU_API_KEY
+    - heroku run rake db:migrate --exit-code --app staging-seller_bot_backend
+  only:
+    - master
+
+production:
+  stage: deploy
+  variables:
+    HEROKU_API_KEY: $HEROKU_PRODUCTION_API_KEY
+  script:
+    - dpl --provider=heroku --app=production-seller_bot_backend --api-key=$HEROKU_API_KEY
+    - heroku run rake db:migrate --exit-code --app production-seller_bot_backend
+  only:
+    - production
