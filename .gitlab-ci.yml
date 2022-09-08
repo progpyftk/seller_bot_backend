@@ -1,5 +1,6 @@
 default:
   before_script:
+    - gem install faraday -v 1.10.2
     - gem install faraday-net_http -v 2.1.0
     - echo "deb http://toolbelt.heroku.com/ubuntu ./" > /etc/apt/sources.list.d/heroku.list
     - wget -O- https://toolbelt.heroku.com/apt/release.key | apt-key add
