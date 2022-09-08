@@ -13,8 +13,8 @@ staging:
   variables:
     HEROKU_API_KEY: $HEROKU_STAGING_API_KEY
   script:
-    - dpl --provider=heroku --app=staging-seller-bot-backend --api-key=$HEROKU_API_KEY
     - heroku stack:set heroku-20
+    - dpl --provider=heroku --app=staging-seller-bot-backend --api-key=$HEROKU_API_KEY
     - heroku run rake db:migrate --exit-code --app staging-seller-bot-backend
   only:
     - master
