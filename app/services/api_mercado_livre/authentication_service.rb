@@ -15,6 +15,7 @@ module ApiMercadoLivre
 
     def call
       if first_access?
+        puts 'primeiro acesso da conta pois o acess_token esta vazio'
         retrieve_first_access_tokens
       else
         auth_with_refresh_token
@@ -23,11 +24,13 @@ module ApiMercadoLivre
     end
 
     def first_access?
+      puts 'verificando se eh o primeiro acesso de sempre'
       @seller.access_token.nil?
     end
 
     # para funcionar é necessário que o code esteja correto na base de dados
     def retrieve_first_access_tokens
+      puts 'entrando na funcao que pega o acess_token'
       headers = { 'content-type' => 'application/x-www-form-urlencoded', 'accept' => 'application/json' }
       url = 'https://api.mercadolibre.com/oauth/token'
       payload = {
@@ -37,6 +40,7 @@ module ApiMercadoLivre
         'code' => @seller.code,
         'redirect_uri' => 'https://localhost:3000'
       }.to_json
+      pp payload
       begin
         @response = RestClient.post(url, payload, headers)
         save_tokens(@response)
