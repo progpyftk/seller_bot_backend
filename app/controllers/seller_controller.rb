@@ -27,7 +27,10 @@ class SellerController < ApplicationController
     puts 'parametros recebidos:'
     pp seller_params
     begin
+      puts 'estou no begin'
       resp = Seller.create(seller_params)
+      puts 'resp do begin - criou na base de dados'
+      puts resp
       render json: resp, status: 200
     rescue ActiveRecord::RecordNotFound => e
       render json: e, status: 400
