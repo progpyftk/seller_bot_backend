@@ -22,7 +22,10 @@ class SellerController < ApplicationController
   end
 
   def create
+    puts 'entrei no controller create'
     seller_params = params.require(:seller).permit(:nickname, :code, :ml_seller_id)
+    puts 'parametros recebidos:'
+    pp seller_params
     begin
       resp = Seller.create(seller_params)
       render json: resp, status: 200
