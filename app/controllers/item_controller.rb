@@ -2,19 +2,11 @@ require_relative '../services/api_mercado_livre/authentication_service'
 
 class ItemController < ApplicationController
   def add_stock
+    DbPopulate::UpdateItemsTableService.call
     item_params = params.require(:item).permit(:quantity, :ml_item_id)
     item = Item.find(item_params[:ml_item_id])
-    puts "Parametros ára atualizar"
-    puts item_params
     begin
       resp = JSON.parse(ApiMercadoLivre::ChangeAvailableQuantity.call(item, item_params[:quantity]))
-      puts 'printando o response que veio do service'
-      puts resp.class
-      pp resp
-      puts 'mensagem'
-      puts resp['message']
-      puts 'status'
-      puts resp['status']
       # render json: resp, status: resp['status'].to_i
       render json: resp, status: 200
     rescue RestClient::ExceptionWithResponse => e

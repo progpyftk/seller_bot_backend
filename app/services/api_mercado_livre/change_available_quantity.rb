@@ -39,6 +39,8 @@ module ApiMercadoLivre
       end
     end
 
+    # tive que fazer modificacoes importantes para poder lidar com as variacoes
+    # no nosso app nao eh possivel alterar a quantidade de uma variacao separadamente, apenas de todo anuncio
     def change_quantity
       headers = { 'Authorization' => "Bearer #{@item.seller.access_token}",
                   'content-type' => 'application/json',
@@ -46,22 +48,18 @@ module ApiMercadoLivre
       url = "https://api.mercadolibre.com/items/#{@item.ml_item_id}"
       ids = variations_ids
       if ids
-        puts "===== tem variacoes ===================="
         ids.each do |id|
           payload = { 'variations' => [{ 'id' => id, 'available_quantity' => @new_quantity }]}.to_json
           begin
             @response = RestClient.put(url, payload, headers)
-            puts '************* tem variacao e deu certo'
           rescue RestClient::ExceptionWithResponse => e
             @response = e.response
           end
         end
       else
-        puts "===== NAO TEM VARIACAO ===================="
         payload = {'available_quantity' => @new_quantity }.to_json
         begin
           @response = RestClient.put(url, payload, headers)
-          puts "rdeu certo sem variacao"
         rescue RestClient::ExceptionWithResponse => e
           @response = e.response
         end
