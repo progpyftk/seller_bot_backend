@@ -1,16 +1,10 @@
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins '*'
-
-    resource '/cors',
-      :headers => :any,
-      :methods => [:post],
-      :max_age => 0
+    origins 'https://lorenzosimonassi.gitlab.io'
 
     resource '*',
-      :headers => :any,
-      :methods => [:get, :post, :delete, :put, :patch, :options, :head],
-      :max_age => 0
+      headers: :any,
+      methods: [:get, :post, :put, :patch, :delete, :options, :head]
   end
 end
 
