@@ -7,11 +7,14 @@ module DbPopulate
   # faz o update da base de dado de acordo com a API do ML
   class UpdateItemsTableService < ApplicationService
     def call
+        puts 'calling DbPopulate::UpdateItemsTableService'
       all_sellers
     end
 
     def all_sellers
       Seller.all.each do |seller|
+        puts 'sellers'
+        puts seller
         next unless seller.auth_status == '200'
         # pega a lista completa de todos anuncios do vendedor no ML
         items_ids = ApiMercadoLivre::AllSellerItemsService.call(seller)
@@ -19,6 +22,7 @@ module DbPopulate
         all_items_raw = ApiMercadoLivre::ItemMultigetDataService.call(items_ids, seller)
         # para cada anuncio, atualiza a base de dados, cria se for novo ou atualiza se algo mudou
         all_items_raw.each do |parsed_item|
+          puts parsed_item
           populate_db(parsed_item, seller)
         end
       end
