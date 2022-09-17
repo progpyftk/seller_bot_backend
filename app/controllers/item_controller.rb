@@ -15,7 +15,8 @@ class ItemController < ApplicationController
       puts resp['message']
       puts 'status'
       puts resp['status']
-      render json: resp, status: resp['status'].to_i
+      # render json: resp, status: resp['status'].to_i
+      render json: resp, status: 200
     rescue RestClient::ExceptionWithResponse => e
       render json: e, status: 400
     end
