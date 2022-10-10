@@ -1,3 +1,2 @@
----
-BUNDLE_FROZEN: "0"
+
 BUNDLE_WITHOUT: "production"
