@@ -84,9 +84,10 @@ test:
 production:
   adapter: postgresql
   pool: 5
-  encoding: unicode
+  encoding: utf8
   timeout: 5000
-  database: "sellerbot_production"
-  host: "/cloudsql/seller-bot-backend:southamerica-east1:seller-bot-database"
-  username: "postgres"
-  password: "22021988"
+  database: <%= ENV['RDS_DB_NAME'] %>
+  username: <%= ENV['RDS_USERNAME'] %>
+  password: <%= ENV['RDS_PASSWORD'] %>
+  host: <%= ENV['RDS_HOSTNAME'] %>
+  port: <%= ENV['RDS_PORT'] %>
