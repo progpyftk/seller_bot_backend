@@ -82,7 +82,11 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  database: useller_bot_production
-  username: seller_bot_
-  password: <%= ENV['SELLER_BOT_DATABASE_PASSWORD'] %>
+  adapter: postgresql
+  pool: 5
+  encoding: unicode
+  timeout: 5000
+  database: "sellerbot_production"
+  host: "/cloudsql/seller-bot-backend:southamerica-east1:seller-bot-database"
+  username: "postgres"
+  password: "22021988"

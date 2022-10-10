@@ -1,0 +1,9 @@
+runtime: ruby30
+entrypoint: bundle exec rackup --port $PORT
+env_variables:
+  SECRET_KEY_BASE: 4bbed6884a4599d94674f4258e62726953ee644d9dc53c21d2bb709821f5fa51d9b1bab59b141ac80488c66f7cd477a333e0609d973125ec5abd9cc6440bc5c3
+  RAILS_ENV: production
+beta_settings:
+  cloud_sql_instances: seller-bot-backend:southamerica-east1:seller-bot-database
+
+
