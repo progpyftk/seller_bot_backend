@@ -23,7 +23,6 @@ gem 'jbuilder', '~> 2.7'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'rest-client'
-gem "appengine", "~> 0.7"
 
 gem 'rack-cors'
 
