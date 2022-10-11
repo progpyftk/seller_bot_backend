@@ -2,12 +2,12 @@ require_relative '../services/api_mercado_livre/authentication_service'
 
 class SellerController < ApplicationController
   def index
-    #Seller.all.each do |seller|
-      #ApiMercadoLivre::AuthenticationService.call(seller)
-    #end
-    render plain: "OK"
-    #@sellers = Seller.all
-    #render json: @sellers, status: 200
+    Seller.all.each do |seller|
+      ApiMercadoLivre::AuthenticationService.call(seller)
+    end
+    #render plain: "OK"
+    @sellers = Seller.all
+    render json: @sellers, status: 200
   end
 
   def auth_all
