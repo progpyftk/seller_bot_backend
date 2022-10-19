@@ -19,6 +19,8 @@
 
 # Learn more: http://github.com/javan/whenever
 
+crontab -r
+whenever --update-crontab
 set :output, './log/cron.log'
 
 every 1.minute do
