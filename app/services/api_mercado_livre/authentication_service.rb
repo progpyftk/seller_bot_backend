@@ -15,8 +15,10 @@ module ApiMercadoLivre
 
     def call
       if first_access?
+        puts 'entrou no first_access'
         retrieve_first_access_tokens
       else
+        puts 'entrou no auth_with_refresh_token'
         auth_with_refresh_token
       end
       @response

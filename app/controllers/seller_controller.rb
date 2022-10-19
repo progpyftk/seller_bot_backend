@@ -3,9 +3,9 @@ require_relative '../services/api_mercado_livre/authentication_service'
 class SellerController < ApplicationController
   def index
     Seller.all.each do |seller|
+      puts 'autenticando todos os sellers no controller seller_controller'
       ApiMercadoLivre::AuthenticationService.call(seller)
     end
-    #render plain: "OK"
     @sellers = Seller.all
     render json: @sellers, status: 200
   end
@@ -20,18 +20,20 @@ class SellerController < ApplicationController
     end
     responses.to_json
     render json: responses, status: 200
-    
   end
 
   def create
     seller_params = params.require(:seller).permit(:nickname, :code, :ml_seller_id)
+    puts '***** Seller Params ******'
     pp seller_params
     begin
       resp = Seller.create(seller_params)
       render json: resp, status: 200
     rescue ActiveRecord::RecordNotFound => e
+      puts 'ActiveRecord::RecordNotFound => e'
       render json: e, status: 400
     rescue ActiveRecord::ActiveRecordError => e
+      puts 'ActiveRecord::ActiveRecordError => e'
       render json: e, status: 400
     rescue StandardError => e
       render json: e, status: 400

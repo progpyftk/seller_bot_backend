@@ -23,7 +23,7 @@ gem 'jbuilder', '~> 2.7'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'rest-client'
-
+gem 'whenever'
 gem 'rack-cors'
 
 gem 'sidekiq-cron'
