@@ -727,3 +727,63 @@ Please, set config.cache_classes to false in config/environments/production.rb.
 	from <internal:/home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
 	from <internal:/home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
 	from -e:1:in `<main>'
+Hello, world
+Running via Spring preloader in process 19581
+WARNING: Spring is running in production. To fix this make sure the spring gem is only present in `development` and `test` groups in your Gemfile and make sure you always use `bundle install --without development test` in production
+Hello, world
+Running via Spring preloader in process 20107
+WARNING: Spring is running in production. To fix this make sure the spring gem is only present in `development` and `test` groups in your Gemfile and make sure you always use `bundle install --without development test` in production
+Hello, world
+Running via Spring preloader in process 20538
+WARNING: Spring is running in production. To fix this make sure the spring gem is only present in `development` and `test` groups in your Gemfile and make sure you always use `bundle install --without development test` in production
+Hello, world
+Running via Spring preloader in process 20711
+WARNING: Spring is running in production. To fix this make sure the spring gem is only present in `development` and `test` groups in your Gemfile and make sure you always use `bundle install --without development test` in production
+Hello, world
+Running via Spring preloader in process 20910
+WARNING: Spring is running in production. To fix this make sure the spring gem is only present in `development` and `test` groups in your Gemfile and make sure you always use `bundle install --without development test` in production
+Hello, world
+Running via Spring preloader in process 21101
+WARNING: Spring is running in production. To fix this make sure the spring gem is only present in `development` and `test` groups in your Gemfile and make sure you always use `bundle install --without development test` in production
+Hello, world
+Running via Spring preloader in process 21266
+WARNING: Spring is running in production. To fix this make sure the spring gem is only present in `development` and `test` groups in your Gemfile and make sure you always use `bundle install --without development test` in production
+Hello, world
+Running via Spring preloader in process 21441
+WARNING: Spring is running in production. To fix this make sure the spring gem is only present in `development` and `test` groups in your Gemfile and make sure you always use `bundle install --without development test` in production
+Hello, world
+Running via Spring preloader in process 21652
+WARNING: Spring is running in production. To fix this make sure the spring gem is only present in `development` and `test` groups in your Gemfile and make sure you always use `bundle install --without development test` in production
+/home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/spring-4.1.0/lib/spring/application.rb:100:in `block in preload': Spring reloads, and therefore needs the application to have reloading enabled.
+Please, set config.cache_classes to false in config/environments/production.rb.
+ (RuntimeError)
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/railties-6.1.7/lib/rails/initializable.rb:32:in `instance_exec'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/railties-6.1.7/lib/rails/initializable.rb:32:in `run'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/railties-6.1.7/lib/rails/initializable.rb:61:in `block in run_initializers'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/tsort.rb:228:in `block in tsort_each'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/tsort.rb:350:in `block (2 levels) in each_strongly_connected_component'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/tsort.rb:431:in `each_strongly_connected_component_from'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/tsort.rb:349:in `block in each_strongly_connected_component'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/tsort.rb:347:in `each'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/tsort.rb:347:in `call'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/tsort.rb:347:in `each_strongly_connected_component'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/tsort.rb:226:in `tsort_each'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/tsort.rb:205:in `tsort_each'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/railties-6.1.7/lib/rails/initializable.rb:60:in `run_initializers'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/railties-6.1.7/lib/rails/application.rb:391:in `initialize!'
+	from /home/lorenzo/projects/seller_bot_backend/config/environment.rb:5:in `<main>'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/bootsnap-1.13.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:32:in `require'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/bootsnap-1.13.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:32:in `require'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/zeitwerk-2.6.1/lib/zeitwerk/kernel.rb:35:in `require'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/activesupport-6.1.7/lib/active_support/dependencies.rb:332:in `block in require'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/activesupport-6.1.7/lib/active_support/dependencies.rb:299:in `load_dependency'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/activesupport-6.1.7/lib/active_support/dependencies.rb:332:in `require'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/spring-4.1.0/lib/spring/application.rb:107:in `preload'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/spring-4.1.0/lib/spring/application.rb:166:in `serve'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/spring-4.1.0/lib/spring/application.rb:148:in `block in run'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/spring-4.1.0/lib/spring/application.rb:142:in `loop'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/spring-4.1.0/lib/spring/application.rb:142:in `run'
+	from /home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/gems/3.0.0/gems/spring-4.1.0/lib/spring/application/boot.rb:19:in `<top (required)>'
+	from <internal:/home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
+	from <internal:/home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
+	from -e:1:in `<main>'
