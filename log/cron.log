@@ -787,3 +787,7 @@ Please, set config.cache_classes to false in config/environments/production.rb.
 	from <internal:/home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
 	from <internal:/home/lorenzo/.rbenv/versions/3.0.4/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
 	from -e:1:in `<main>'
+Hello, world
+Hello, world
+Hello, world
+Hello, world
