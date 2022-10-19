@@ -19,10 +19,9 @@
 
 # Learn more: http://github.com/javan/whenever
 
-crontab -r
-whenever --update-crontab
 set :output, './log/cron.log'
 
-every 1.minute do
+every 1.minutes do
+    runner 'puts Rails.env'
     runner "puts 'Hello, world'"
 end
