@@ -133,7 +133,7 @@ GEM
     minitest (5.16.3)
     msgpack (1.6.0)
     netrc (0.11.0)
-    nio4r (2.5.7)
+    nio4r (2.5.8)
     nokogiri (1.13.9-x86_64-linux)
       racc (~> 1.4)
     pg (1.2.3)
@@ -242,18 +242,18 @@ PLATFORMS
 
 DEPENDENCIES
   active_elastic_job
+  aws-sdk-sqs (~> 1)
   bootsnap (>= 1.4.4)
   byebug
   capybara (>= 3.26)
   database_cleaner
   jbuilder (~> 2.7)
   listen (~> 3.3)
-  nio4r (= 2.5.7)
   pg (= 1.2.3)
   puma (~> 5.0)
   rack-cors
   rack-mini-profiler (~> 2.0)
-  rails (~> 6.1.4, >= 6.1.4.6)
+  rails (= 6.1.7)
   rails-controller-testing
   rest-client
   selenium-webdriver

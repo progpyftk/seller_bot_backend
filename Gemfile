@@ -4,7 +4,9 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '~> 3.0.4'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
-gem 'rails', '~> 6.1.4', '>= 6.1.4.6'
+# gem 'rails', '~> 6.1.4', '>= 6.1.4.6'
+gem 'rails', "= 6.1.7"
+gem 'aws-sdk-sqs', '~> 1'
 # Use postgresql as the database for Active Record
 gem "pg", "= 1.2.3"
 # Use Puma as the app server
@@ -12,7 +14,6 @@ gem 'puma', '~> 5.0'
 
 gem 'active_elastic_job'
 
-gem "nio4r", "= 2.5.7" 
 
 # Use SCSS for stylesheets
 
