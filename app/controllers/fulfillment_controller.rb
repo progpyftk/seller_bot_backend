@@ -14,6 +14,7 @@ class FulfillmentController < ApplicationController
   end
 
   def to_increase_stock
+    puts 'increase strock'
     items_without_stock = Item.where.not(logistic_type: 'fulfillment').where(available_quantity: 0)
     @items_need_increase_stock = []
     items_without_stock.each do |item|
