@@ -12,6 +12,8 @@ gem 'puma', '~> 5.0'
 
 gem 'active_elastic_job'
 
+gem "nio4r", "= 2.5.7" 
+
 # Use SCSS for stylesheets
 
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
