@@ -1,2 +1,3 @@
-
+---
 BUNDLE_WITHOUT: "production"
+BUNDLE_BUILD__FFI: "--with-cflags=-Wno-error=implicit-function-declaration"
