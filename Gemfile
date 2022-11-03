@@ -9,6 +9,9 @@ gem 'rails', '~> 6.1.4', '>= 6.1.4.6'
 gem "pg", "= 1.2.3"
 # Use Puma as the app server
 gem 'puma', '~> 5.0'
+
+gem 'active_elastic_job'
+
 # Use SCSS for stylesheets
 
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
