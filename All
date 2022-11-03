@@ -1,0 +1,8 @@
+Gem 'versions' is not installed
+
+Select gem to uninstall:
+ 1. ffi-1.14.2
+ 2. ffi-1.15.4
+ 3. ffi-1.15.5
+ 4. All versions
+> Error: must enter a number [1-4]
