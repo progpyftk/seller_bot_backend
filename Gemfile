@@ -14,6 +14,7 @@ gem 'puma', '~> 5.0'
 
 gem 'active_elastic_job'
 
+gem 'ffi', '= 1.15.4' 
 
 # Use SCSS for stylesheets
 
