@@ -18,5 +18,7 @@ module SellerBotBackend
     #
     config.time_zone = "Brasilia"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    config.active_job.queue_adapter = :active_elastic_job
   end
 end
