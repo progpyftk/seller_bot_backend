@@ -1,4 +1,7 @@
 require 'rufus-scheduler'
+require_relative '../../app/services/db_populate/update_items_table_service'
+
+
 
 s = Rufus::Scheduler.singleton
 
@@ -7,3 +10,9 @@ s.every '1m' do
     Rails.logger.flush
     puts 'logando'
   end
+
+  s.every '5m' do
+    puts 'atualizando DB'
+    DbPopulate::UpdateItemsTableService.call
+  end
+  

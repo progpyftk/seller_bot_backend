@@ -22,7 +22,7 @@ module DbPopulate
         all_items_raw = ApiMercadoLivre::ItemMultigetDataService.call(items_ids, seller)
         # para cada anuncio, atualiza a base de dados, cria se for novo ou atualiza se algo mudou
         all_items_raw.each do |parsed_item|
-          puts parsed_item
+          # puts parsed_item
           populate_db(parsed_item, seller)
         end
       end
