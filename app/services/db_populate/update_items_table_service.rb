@@ -1,29 +1,31 @@
-require 'rest-client'
-require 'json'
-require 'pp'
-
 # ML Api
 module DbPopulate
   # faz o update da base de dado de acordo com a API do ML
   class UpdateItemsTableService < ApplicationService
     def call
-        puts 'calling DbPopulate::UpdateItemsTableService'
+      puts 'calling DbPopulate::UpdateItemsTableService'
       all_sellers
     end
 
     def all_sellers
       Seller.all.each do |seller|
         puts 'sellers'
-        puts seller
-        next unless seller.auth_status == '200'
-        # pega a lista completa de todos anuncios do vendedor no ML
-        items_ids = ApiMercadoLivre::AllSellerItemsService.call(seller)
-        # pega os dados de cada um desses anuncios
-        all_items_raw = ApiMercadoLivre::ItemMultigetDataService.call(items_ids, seller)
-        # para cada anuncio, atualiza a base de dados, cria se for novo ou atualiza se algo mudou
-        all_items_raw.each do |parsed_item|
-          # puts parsed_item
-          populate_db(parsed_item, seller)
+        puts seller.nickname
+        # next unless seller.auth_status == '200'
+        if seller.auth_status == 200
+          # pega a lista completa de todos anuncios do vendedor no ML
+          items_ids = ApiMercadoLivre::AllSellerItemsService.call(seller)
+          puts 'numero de anuncios do seller'
+          puts items_ids.length
+          # pega os dados de cada um desses anuncios
+          all_items_raw = ApiMercadoLivre::ItemMultigetDataService.call(items_ids, seller)
+          puts 'numero de anuncios com os dados dos seller'
+          puts all_items_raw.length
+          # para cada anuncio, atualiza a base de dados, cria se for novo ou atualiza se algo mudou
+          all_items_raw.each do |parsed_item|
+            # puts parsed_item
+            populate_db(parsed_item, seller)
+          end
         end
       end
     end
@@ -33,6 +35,7 @@ module DbPopulate
       attributes = item_attributes(parsed_item)
       begin
         # tenta atualizar o anuncio, mas se ele nao existe, cria um novo
+        puts 'tenta atualizar o anuncio, mas se ele nao existe, cria um novo'
         item = Item.find(attributes[:ml_item_id])
         item.update(attributes)
         # ActiveModel::Dirty previous_changes() public
@@ -41,6 +44,7 @@ module DbPopulate
         # faz o eventTrack, tratanto justamente esse hash que tras as mudancas
         DbPopulate::UpdateEventTrackService.call(item, updates_hash) unless item.previous_changes.empty?
       rescue ActiveRecord::RecordNotFound
+        puts 'rescue ActiveRecord::RecordNotFound - cria o anuncio na db'
         seller.items.create(attributes)
         nil
       end
