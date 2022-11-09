@@ -11,8 +11,9 @@ module DbPopulate
       Seller.all.each do |seller|
         puts 'sellers'
         puts seller.nickname
+        puts seller.auth_status
         # next unless seller.auth_status == '200'
-        if seller.auth_status == 200
+        if seller.auth_status == '200'
           # pega a lista completa de todos anuncios do vendedor no ML
           items_ids = ApiMercadoLivre::AllSellerItemsService.call(seller)
           puts 'numero de anuncios do seller'
