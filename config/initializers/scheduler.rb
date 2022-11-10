@@ -11,7 +11,7 @@ s.every '1m' do
     puts "logando #{Time.now}"
   end
 
-  s.every '4m' do
+  s.every '2m' do
     puts 'atualizando DB'
     DbPopulate::UpdateItemsTableService.call
   end

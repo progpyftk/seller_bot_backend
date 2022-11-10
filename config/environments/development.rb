@@ -73,4 +73,9 @@ Rails.application.configure do
 
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
+
+  # tentatia de desligar o log de sql no puma
+  config.log_level = :info
+
+  config.active_record.logger = nil
 end
