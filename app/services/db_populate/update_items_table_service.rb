@@ -42,6 +42,7 @@ module DbPopulate
       begin
         # tenta atualizar o anuncio, mas se ele nao existe, cria um novo
         item = Item.find(attributes[:ml_item_id])
+        puts item.permalink
         item.update(attributes)
         # ActiveModel::Dirty previous_changes() public
         # retorna um hash com tudo que foi alterado, antes de salvar
@@ -68,10 +69,12 @@ module DbPopulate
         Rails.logger.info parsed_item['body']
         pp parsed_item
       end
+      puts parsed_item['body']['permalink']
       begin
         {
           ml_item_id: parsed_item['body']['id'],
           title: parsed_item['body']['title'],
+          permalink: parsed_item['body']['permalink'],
           price: parsed_item['body']['price'],
           base_price: parsed_item['body']['base_price'],
           available_quantity: parsed_item['body']['available_quantity'],
@@ -87,7 +90,6 @@ module DbPopulate
         Rails.logger.info e
         Rails.logger.info parsed_item['body']['id']
         Rails.logger.info "=====---- deu algum erro no parsed ----====="
-        
       end
     end
   end
