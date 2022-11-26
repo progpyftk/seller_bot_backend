@@ -32,4 +32,14 @@ class ItemController < ApplicationController
     resp = ApiMercadoLivre::ItemDataService.call(ml_item_id, seller)
     render json: resp, status: 200
   end
+
+  def price_events
+    price_events = PriceEvent.all.to_a
+    render json: price_events, status: 200
+  end
+
+  def logistic_events
+    logistic_events = LogisticEvent.all
+    render json: logistic_events, status: 200
+  end
 end

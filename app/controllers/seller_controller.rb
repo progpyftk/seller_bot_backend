@@ -40,6 +40,31 @@ class SellerController < ApplicationController
     end
   end
 
+  def edit
+    seller_params = params.require(:seller).permit(:nickname, :code,:ml_seller_id, :access_token,:refresh_token)
+    begin
+      seller = Seller.find(seller_params[:ml_seller_id])
+      resp = seller.update(seller_params)
+      render json: resp, status: 200
+    rescue ActiveRecord::RecordNotFound
+      puts 'ActiveRecord::RecordNotFound - nao encontrou o seller'
+    rescue ActiveRecord::ActiveRecordError
+      puts 'ActiveRecord::ActiveRecordError'
+    end
+  end
+
+  def delete
+    seller_params = params.require(:seller).permit(:ml_seller_id)
+    begin
+      resp = Seller.destroy(seller_params[:ml_seller_id])
+      render json: resp, status: 200
+    rescue ActiveRecord::RecordNotFound
+      puts 'ActiveRecord::RecordNotFound - nao encontrou o seller'
+    rescue ActiveRecord::ActiveRecordError
+      puts 'ActiveRecord::ActiveRecordError'
+    end
+  end
+
   def check_auth
     seller_params = params.require(:seller).permit(:ml_seller_id)
     seller = Seller.find_by(ml_seller_id: seller_params[:seller][:ml_seller_id])

@@ -16,7 +16,6 @@ module DbPopulate
         puts seller.auth_status
         # next unless seller.auth_status == '200'
         next unless seller.auth_status == '200'
-
         # pega a lista completa de todos anuncios do vendedor no ML
         items_ids = ApiMercadoLivre::AllSellerItemsService.call(seller)
         puts 'numero de anuncios do seller'
@@ -65,6 +64,10 @@ module DbPopulate
 
     def item_attributes(parsed_item)
       Rails.logger.info parsed_item['body']['id']
+      if parsed_item['body']['id'] == 'MLB2836826011'
+        Rails.logger.info parsed_item['body']
+        pp parsed_item
+      end
       begin
         {
           ml_item_id: parsed_item['body']['id'],
@@ -84,7 +87,7 @@ module DbPopulate
         Rails.logger.info e
         Rails.logger.info parsed_item['body']['id']
         Rails.logger.info "=====---- deu algum erro no parsed ----====="
-        Rils.logger.info parsed_item
+        
       end
     end
   end
