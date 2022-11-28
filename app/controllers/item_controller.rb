@@ -34,8 +34,13 @@ class ItemController < ApplicationController
   end
 
   def price_events
-    price_events = PriceEvent.all.to_a
-    render json: price_events, status: 200
+    @resp = []
+    PriceEvent.all.each do |event|
+      hash1 = event.attributes
+      hash1['permalink'] = event.item.permalink
+      @resp << hash1
+    end
+    render json: @resp, status: 200
   end
 
   def logistic_events
