@@ -16,6 +16,7 @@ module DbPopulate
         puts seller.auth_status
         # next unless seller.auth_status == '200'
         next unless seller.auth_status == '200'
+
         # pega a lista completa de todos anuncios do vendedor no ML
         items_ids = ApiMercadoLivre::AllSellerItemsService.call(seller)
         puts 'numero de anuncios do seller'
@@ -26,10 +27,12 @@ module DbPopulate
         puts all_items_raw.length
         # para cada anuncio, atualiza a base de dados, cria se for novo ou atualiza se algo mudou
         all_items_raw.each do |parsed_item|
+          pp parsed_item if parsed_item['body']['id'] == 'MLB1800883230'
+
           if parsed_item.nil?
             puts 'encontrou um parsed_item NIL'
             Rails.logger.info "hello, it's #{Time.now}"
-            Rails.logger.info "encontrou um parsed_item NIL}"
+            Rails.logger.info 'encontrou um parsed_item NIL}'
           end
           populate_db(parsed_item, seller)
         end
@@ -42,7 +45,6 @@ module DbPopulate
       begin
         # tenta atualizar o anuncio, mas se ele nao existe, cria um novo
         item = Item.find(attributes[:ml_item_id])
-        puts item.permalink
         item.update(attributes)
         # ActiveModel::Dirty previous_changes() public
         # retorna um hash com tudo que foi alterado, antes de salvar
@@ -57,7 +59,7 @@ module DbPopulate
       rescue ActiveRecord::RecordNotFound
         puts 'rescue ActiveRecord::RecordNotFound - cria o anuncio na db'
         Rails.logger.info "hello, it's #{Time.now}"
-        Rails.logger.info "rescue ActiveRecord::RecordNotFound - Criando anuncio na db"
+        Rails.logger.info 'rescue ActiveRecord::RecordNotFound - Criando anuncio na db'
         seller.items.create(attributes)
         nil
       end
@@ -65,11 +67,6 @@ module DbPopulate
 
     def item_attributes(parsed_item)
       Rails.logger.info parsed_item['body']['id']
-      if parsed_item['body']['id'] == 'MLB2836826011'
-        Rails.logger.info parsed_item['body']
-        pp parsed_item
-      end
-      puts parsed_item['body']['permalink']
       begin
         {
           ml_item_id: parsed_item['body']['id'],
@@ -79,7 +76,8 @@ module DbPopulate
           base_price: parsed_item['body']['base_price'],
           available_quantity: parsed_item['body']['available_quantity'],
           sold_quantity: parsed_item['body']['sold_quantity'],
-          logistic_type: parsed_item['body']['shipping']['logistic_type']
+          logistic_type: parsed_item['body']['shipping']['logistic_type'],
+          free_shipping: parsed_item['body']['shipping']['free_shipping']
         }
       rescue StandardError => e
         puts e
@@ -89,7 +87,7 @@ module DbPopulate
         Rails.logger.info "hello, it's #{Time.now}"
         Rails.logger.info e
         Rails.logger.info parsed_item['body']['id']
-        Rails.logger.info "=====---- deu algum erro no parsed ----====="
+        Rails.logger.info '=====---- deu algum erro no parsed ----====='
       end
     end
   end

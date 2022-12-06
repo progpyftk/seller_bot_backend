@@ -44,7 +44,32 @@ class ItemController < ApplicationController
   end
 
   def logistic_events
-    logistic_events = LogisticEvent.all
-    render json: logistic_events, status: 200
+    @resp = []
+    LogisticEvent.all.each do |event|
+      hash1 = event.attributes
+      hash1['permalink'] = event.item.permalink
+      @resp << hash1
+    end
+    render json: @resp, status: 200
+  end
+
+  def free_shipping
+    free_shipping_items = Item.where(free_shipping: true).where(price: 0..78.99)
+    render json: free_shipping_items.to_json, status: 200
+  end
+
+  def change_to_free_shipping
+    puts 'entrei na funcao change to free shipping'
+    item_params = params.require(:item).permit(:ml_item_id)
+    puts 'item params:'
+    puts item_params
+    item = Item.find(item_params[:ml_item_id])
+    begin
+      resp = JSON.parse(ApiMercadoLivre::FreeShipping.call(item))
+      # render json: resp, status: resp['status'].to_i
+      render json: resp, status: 200
+    rescue RestClient::ExceptionWithResponse => e
+      render json: e, status: 400
+    end
   end
 end
