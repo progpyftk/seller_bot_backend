@@ -59,14 +59,10 @@ class ItemController < ApplicationController
   end
 
   def change_to_free_shipping
-    puts 'entrei na funcao change to free shipping'
     item_params = params.require(:item).permit(:ml_item_id)
-    puts 'item params:'
-    puts item_params
     item = Item.find(item_params[:ml_item_id])
     begin
       resp = JSON.parse(ApiMercadoLivre::FreeShipping.call(item))
-      # render json: resp, status: resp['status'].to_i
       render json: resp, status: 200
     rescue RestClient::ExceptionWithResponse => e
       render json: e, status: 400

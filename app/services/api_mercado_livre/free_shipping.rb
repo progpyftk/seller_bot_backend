@@ -7,8 +7,8 @@ module ApiMercadoLivre
 
     def call
       change_free_shipping
-      puts '------ @response do free_Shipping ------'
-      puts  @response
+      # puts '------ @response do free_Shipping ------'
+      # puts  @response
       @response
     end
 
@@ -18,8 +18,8 @@ module ApiMercadoLivre
                   'accept' => 'application/json' }
       url = "https://api.mercadolibre.com/items/#{@item.ml_item_id}"
       payload = { 'shipping' => { 'free_shipping' => false } }.to_json
-      puts '------  ESSE É O PAYLOAD ----------'
-      puts payload
+      # puts '------  ESSE É O PAYLOAD ----------'
+      # puts payload
       begin
         @response = RestClient.put(url, payload, headers)
       rescue RestClient::ExceptionWithResponse => e

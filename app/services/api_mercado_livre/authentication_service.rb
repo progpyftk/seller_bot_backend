@@ -15,10 +15,10 @@ module ApiMercadoLivre
 
     def call
       if first_access?
-        puts 'entrou no first_access'
+        # puts 'entrou no first_access'
         retrieve_first_access_tokens
       else
-        puts 'entrou no auth_with_refresh_token'
+        # puts 'entrou no auth_with_refresh_token'
         auth_with_refresh_token
       end
       @response
@@ -70,7 +70,7 @@ module ApiMercadoLivre
 
     def save_tokens(response)
       if response.nil?
-        puts 'não obteve resposta do RestClient'
+        # puts 'não obteve resposta do RestClient'
       else
         parsed_response = JSON.parse(response)
         @seller.access_token = parsed_response['access_token']
