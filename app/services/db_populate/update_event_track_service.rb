@@ -1,6 +1,5 @@
 require 'rest-client'
 require 'json'
-require 'pp'
 
 module DbPopulate
   # faz o update da base de dado de acordo com a API do ML
