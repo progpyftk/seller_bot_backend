@@ -25,6 +25,25 @@ class FulfillmentController < ApplicationController
     end
 
     render json: @items_need_increase_stock, status: 200
-    #render json: items_without_stock, status: 200
+    # render json: items_without_stock, status: 200
+  end
+
+  def check_flex_Stock
+    items_full = Item.where.call(logistic_type: 'fulfillment')
+    items_full.each do |item|
+      if has_stock?(item.sku)
+        if item.flex == false
+          # ativa o flex
+        end
+      elsif item.flex == true
+        # desativa o flex
+      end
+    end
+    # pega os skus que estão zerados no bling e faz uma lista
+    # filtra os anuncios que estão no full
+    # para cada sku zerado, faz uma busca desses que estão no full
+    # se for verdadeiro, desliga o flex
+
+    # não podemos esquecer de religar os flex para aqueles que têm estoque no blign
   end
 end

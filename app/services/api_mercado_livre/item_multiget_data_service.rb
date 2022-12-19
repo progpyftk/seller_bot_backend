@@ -1,6 +1,5 @@
 require 'rest-client'
 require 'json'
-require 'pp'
 
 # ML Api
 module ApiMercadoLivre
@@ -17,16 +16,16 @@ module ApiMercadoLivre
       multiget_items
     end
 
-    # Utiliza a função Multiget para melhorar a interação com os recursos 
-    # de itens e users e poder acessar assim um máximo de 20 resultados com uma única chamada. 
+    # Utiliza a função Multiget para melhorar a interação com os recursos
+    # sendo que em uma única chamada na API são retornados 20 anúncios
     def multiget_items
       resp = []
       urls_list.each do |url|
-         # aqui faz uma chamada para 20 anuncios de uma única vez, e vai concatenando 
-         # até formar um array com os dados de todos os anuncios
+        # aqui faz uma chamada para 20 anuncios de uma única vez, e vai concatenando os resultados
+        # até formar um array com os dados de todoss os anuncios
         resp.concat(JSON.parse(RestClient.get(url, auth_header)))
       end
-      resp # a list of hashes
+      resp # a list of hashes contendo todas 
     end
 
     # cria uma lista com as urls de 20 em 20 anuncios até retornar uma lista com elas
@@ -43,9 +42,8 @@ module ApiMercadoLivre
     end
 
     def auth_header
-      #ApiMercadoLivre::AuthenticationService.call(@seller)
+      # ApiMercadoLivre::AuthenticationService.call(@seller)
       { 'Authorization' => "Bearer #{@seller.access_token}" }
     end
   end
 end
-

@@ -9,6 +9,7 @@ module DbPopulate
 
     def all_sellers
       Seller.all.each do |seller|
+        
         # Rails.logger.info "hello, it's #{Time.now}"
         # Rails.logger.info "Seller: #{seller.nickname} Status: #{seller.auth_status}"
         # puts 'sellers'
@@ -18,25 +19,32 @@ module DbPopulate
         next unless seller.auth_status == '200'
 
         # pega a lista completa de todos anuncios do vendedor no ML
+        puts "pegando a lista completa do seller #{Time.now}"
         items_ids = ApiMercadoLivre::AllSellerItemsService.call(seller)
+        puts "terminou de pegar a lista de MLB do seller #{Time.now}"
         # puts 'numero de anuncios do seller'
         # puts items_ids.length
         # pega os dados de cada um desses anuncios
+        puts "pega os dados de todos esses MLB #{Time.now}"
         all_items_raw = ApiMercadoLivre::ItemMultigetDataService.call(items_ids, seller)
+        puts "terminou de pegar os dados de todos anuncios desse seller #{Time.now}"
         # puts 'numero de anuncios com os dados dos seller'
         # puts all_items_raw.length
         # para cada anuncio, atualiza a base de dados, cria se for novo ou atualiza se algo mudou
+        puts "grava na DB #{Time.now}"
         all_items_raw.each do |parsed_item|
           # pp parsed_item if parsed_item['body']['id'] == 'MLB1800883230'
 
           if parsed_item.nil?
-            # puts 'encontrou um parsed_item NIL'
+            puts 'encontrou um parsed_item NIL'
             # Rails.logger.info "hello, it's #{Time.now}"
             # Rails.logger.info 'encontrou um parsed_item NIL}'
           end
           populate_db(parsed_item, seller)
         end
+        puts "terminou de gravar na DB #{Time.now}"
       end
+      puts "---- INICIA OUTRO SELLER ---- #{Time.now}"
     end
 
     def populate_db(parsed_item, seller)

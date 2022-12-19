@@ -1,6 +1,5 @@
 require 'rest-client'
 require 'json'
-require 'pp'
 
 # ML Api
 module ApiMercadoLivre
@@ -19,6 +18,7 @@ module ApiMercadoLivre
 
     # cria a lista de todos os anuncios do seller - apenas os ids dos anuncios
     def all_items
+      puts 'autenticando um seller'
       ApiMercadoLivre::AuthenticationService.call(@seller)
       auth_header = { 'Authorization' => "Bearer #{@seller.access_token}" }
       url = "https://api.mercadolibre.com/users/#{@seller.ml_seller_id}/items/search?search_type=scan&limit=100"
