@@ -9,7 +9,6 @@ module DbPopulate
 
     def all_sellers
       Seller.all.each do |seller|
-        
         # Rails.logger.info "hello, it's #{Time.now}"
         # Rails.logger.info "Seller: #{seller.nickname} Status: #{seller.auth_status}"
         # puts 'sellers'
@@ -74,7 +73,10 @@ module DbPopulate
     end
 
     def item_attributes(parsed_item)
+      puts 'entrei aqui'
       # Rails.logger.info parsed_item['body']['id']
+      pp parsed_item if parsed_item['body']['shipping']['logistic_type'] == 'fulfillment'
+
       begin
         {
           ml_item_id: parsed_item['body']['id'],
