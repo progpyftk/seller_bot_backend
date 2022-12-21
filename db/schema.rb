@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_21_004234) do
+ActiveRecord::Schema.define(version: 2022_12_21_004853) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,10 +68,10 @@ ActiveRecord::Schema.define(version: 2022_12_21_004234) do
   end
 
   create_table "variations", force: :cascade do |t|
-    t.bigint "item_id"
     t.string "variation_id"
-    t.string "ml_item_id"
     t.string "sku"
+    t.string "ml_item_id"
+    t.bigint "item_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["item_id"], name: "index_variations_on_item_id"
