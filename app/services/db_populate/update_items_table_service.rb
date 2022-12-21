@@ -17,6 +17,7 @@ module DbPopulate
             # pass
           end
           populate_db(parsed_item, seller)
+          populate_db_variations(parsed_item)
         end
       end
     end
@@ -39,11 +40,12 @@ module DbPopulate
 
       puts 'encontrou variacao, salvando'
       parsed_item['body']['variations'].each do |variation|
+        puts variation['id']
         variation = Variation.find_or_initialize_by(variation_id: variation['id'])
         variation.variation_id = variation['id']
         variation.sku = variation['seller_custom_field']
         variation.ml_item_id = parsed_item['body']['id']
-        variation.save
+        puts variation.save
       end
     end
 
