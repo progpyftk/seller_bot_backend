@@ -63,6 +63,25 @@ module DbPopulate
           # Rails.logger.info "Atualizando o anuncio #{item.ml_item_id}"
           DbPopulate::UpdateEventTrackService.call(item, updates_hash)
         end
+
+        # no ML mesmo que o item seja simples, ele ainda assim possui um atributo chamado variations, que
+        # possui por sua ver um id e um sku para cada variacao,as vezes esse sku pode ser null, ou podemos ter mais
+        # de uma variacao, contendo assim mais de um sku. É importante monitorar esses sku para desligar o flex dos anuncios que
+        # estao no full, especificamente no caso daqueles que possuem variacoes, pois se uma delas acabar, precisamos desligar.
+        # verifica se o produtos tem o atributo variacao
+        if parsed_item['body']['variations'].present?
+          # atualiza a tabela de variacoes
+      
+
+         
+
+         
+          parsed_item['body']['variations'].each do |variation|
+            unless variation['seller_custom_field'].nil?
+              puts "Id da Variacao: #{variation['id']} Sku da Variação: #{variation['seller_custom_field']}"
+            end
+          end
+        end
       rescue ActiveRecord::RecordNotFound
         # puts 'rescue ActiveRecord::RecordNotFound - cria o anuncio na db'
         # Rails.logger.info "hello, it's #{Time.now}"
@@ -75,7 +94,7 @@ module DbPopulate
     def item_attributes(parsed_item)
       puts 'entrei aqui'
       # Rails.logger.info parsed_item['body']['id']
-      pp parsed_item if parsed_item['body']['shipping']['logistic_type'] == 'fulfillment'
+      pp parsed_item.to_json if parsed_item['body']['id'] == 'MLB2907280466'
 
       begin
         {
@@ -87,7 +106,8 @@ module DbPopulate
           available_quantity: parsed_item['body']['available_quantity'],
           sold_quantity: parsed_item['body']['sold_quantity'],
           logistic_type: parsed_item['body']['shipping']['logistic_type'],
-          free_shipping: parsed_item['body']['shipping']['free_shipping']
+          free_shipping: parsed_item['body']['shipping']['free_shipping'],
+          sku: parsed_item['body']['seller_custom_field']
         }
       rescue StandardError => e
         # puts e

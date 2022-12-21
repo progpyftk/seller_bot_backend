@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_19_210453) do
+ActiveRecord::Schema.define(version: 2022_12_21_004234) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,6 +27,7 @@ ActiveRecord::Schema.define(version: 2022_12_19_210453) do
     t.bigint "seller_id"
     t.string "permalink"
     t.boolean "free_shipping"
+    t.string "sku"
     t.index ["seller_id"], name: "index_items_on_seller_id"
   end
 
@@ -64,6 +65,16 @@ ActiveRecord::Schema.define(version: 2022_12_19_210453) do
     t.integer "quantity"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "variations", force: :cascade do |t|
+    t.bigint "item_id"
+    t.string "variation_id"
+    t.string "ml_item_id"
+    t.string "sku"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["item_id"], name: "index_variations_on_item_id"
   end
 
   add_foreign_key "logistic_events", "items", primary_key: "ml_item_id"
