@@ -63,57 +63,44 @@ module DbPopulate
           # Rails.logger.info "Atualizando o anuncio #{item.ml_item_id}"
           DbPopulate::UpdateEventTrackService.call(item, updates_hash)
         end
-
-        # no ML mesmo que o item seja simples, ele ainda assim possui um atributo chamado variations, que
-        # possui por sua ver um id e um sku para cada variacao,as vezes esse sku pode ser null, ou podemos ter mais
-        # de uma variacao, contendo assim mais de um sku. É importante monitorar esses sku para desligar o flex dos anuncios que
-        # estao no full, especificamente no caso daqueles que possuem variacoes, pois se uma delas acabar, precisamos desligar.
-        # verifica se o produtos tem o atributo variacao
-        if parsed_item['body']['variations'].present?
-          # atualiza a tabela de variacoes
-          parsed_item['body']['variations'].each do |variation|
-            next if variation['seller_custom_field'].nil?
-
-            puts "Id da Variacao: #{variation['id']} Sku da Variação: #{variation['seller_custom_field']}"
-            # atualiza e se não existir cria
-            variation = Variation.find_or_initialize_by(variation_id: variation['id'])
-            variation.variation_id = variation['id']
-            variation.sku = variation['seller_custom_field']
-            variation.ml_item_id = parsed_item['body']['id']
-            variation.save
-          end
-        end
+      rescue ActiveRecord::RecordNotFound
+        # puts 'rescue ActiveRecord::RecordNotFound - cria o anuncio na db'
+        # Rails.logger.info "hello, it's #{Time.now}"
+        # Rails.logger.info 'rescue ActiveRecord::RecordNotFound - Criando anuncio na db'
+        seller.items.create(attributes)
+        nil
       end
-    rescue ActiveRecord::RecordNotFound
-      # puts 'rescue ActiveRecord::RecordNotFound - cria o anuncio na db'
-      # Rails.logger.info "hello, it's #{Time.now}"
-      # Rails.logger.info 'rescue ActiveRecord::RecordNotFound - Criando anuncio na db'
-      seller.items.create(attributes)
-      nil
     end
-  end
 
-  def item_attributes(parsed_item)
-    {
-      ml_item_id: parsed_item['body']['id'],
-      title: parsed_item['body']['title'],
-      permalink: parsed_item['body']['permalink'],
-      price: parsed_item['body']['price'],
-      base_price: parsed_item['body']['base_price'],
-      available_quantity: parsed_item['body']['available_quantity'],
-      sold_quantity: parsed_item['body']['sold_quantity'],
-      logistic_type: parsed_item['body']['shipping']['logistic_type'],
-      free_shipping: parsed_item['body']['shipping']['free_shipping'],
-      sku: parsed_item['body']['seller_custom_field']
-    }
-  rescue StandardError => e
-    # puts e
-    # puts '=====---- deu algum erro no parsed ----====='
-    # puts 'é esse abaixo'
-    # pp parsed_item
-    # Rails.logger.info "hello, it's #{Time.now}"
-    # Rails.logger.info e
-    # Rails.logger.info parsed_item['body']['id']
-    # Rails.logger.info '=====---- deu algum erro no parsed ----====='
+    def item_attributes(parsed_item)
+      puts 'entrei aqui'
+      # Rails.logger.info parsed_item['body']['id']
+      #pp parsed_item.to_json if parsed_item['body']['shipping']['logistic_type'] == 'fulfillment'
+
+      begin
+        {
+          ml_item_id: parsed_item['body']['id'],
+          title: parsed_item['body']['title'],
+          permalink: parsed_item['body']['permalink'],
+          price: parsed_item['body']['price'],
+          base_price: parsed_item['body']['base_price'],
+          available_quantity: parsed_item['body']['available_quantity'],
+          sold_quantity: parsed_item['body']['sold_quantity'],
+          logistic_type: parsed_item['body']['shipping']['logistic_type'],
+          free_shipping: parsed_item['body']['shipping']['free_shipping'],
+          sku: parsed_item['body']['seller_custom_field']
+
+        }
+      rescue StandardError => e
+        # puts e
+        # puts '=====---- deu algum erro no parsed ----====='
+        # puts 'é esse abaixo'
+        # pp parsed_item
+        # Rails.logger.info "hello, it's #{Time.now}"
+        # Rails.logger.info e
+        # Rails.logger.info parsed_item['body']['id']
+        # Rails.logger.info '=====---- deu algum erro no parsed ----====='
+      end
+    end
   end
 end

@@ -19,13 +19,17 @@ module ApiMercadoLivre
     # Utiliza a função Multiget para melhorar a interação com os recursos
     # sendo que em uma única chamada na API são retornados 20 anúncios
     def multiget_items
+      puts 'entrei no multget'
       resp = []
       urls_list.each do |url|
         # aqui faz uma chamada para 20 anuncios de uma única vez, e vai concatenando os resultados
         # até formar um array com os dados de todoss os anuncios
+        puts url
         resp.concat(JSON.parse(RestClient.get(url, auth_header)))
       end
+      pp resp
       resp # a list of hashes contendo todas 
+
     end
 
     # cria uma lista com as urls de 20 em 20 anuncios até retornar uma lista com elas
