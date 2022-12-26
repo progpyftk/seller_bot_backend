@@ -28,22 +28,38 @@ class FulfillmentController < ApplicationController
     # render json: items_without_stock, status: 200
   end
 
-  def check_flex_Stock
-    items_full = Item.where.call(logistic_type: 'fulfillment')
+  def flex
+    items_full = Item.where(logistic_type: 'fulfillment')
     items_full.each do |item|
-      if has_stock?(item.sku)
-        if item.flex == false
-          # ativa o flex
+      # para cada anuncio do full, verifica se tem variacoes
+      if item.variations.present?
+        pp item.variations
+        item.variations.each do |item_variation|
+          next if item_variation.sku.nil?
+
+          puts 'o anúncio possui variação e tem SKU cadastrado na variação'
+          # verifica no estoque físico a quantidade desse sku
+          stock_sku = Stock.find_by(sku: item_variation.sku)
+          puts stock_sku.quantity
         end
-      elsif item.flex == true
-        # desativa o flex
+      else
+        # vamos utilizar o sku do proprio anuncio
+        puts 'o anúncio possui variação MAS NÃO TEM SKU cadastrado na variação'
+        begin
+          stock_sku = Stock.find_by(sku: item.sku)
+          if stock_sku.nil?
+            puts "naõ encontrou o SKU #{item.sku} no BLING" 
+          end
+          puts '-----------------'
+          puts stock_sku
+          puts stock_sku.quantity
+        rescue ActiveRecord::RecordNotFound
+          puts 'não encontrou o SKU na tabela de estoque'
+          puts item.sku
+        end
+        puts item.sku
+        puts stock_sku.quantity
       end
     end
-    # pega os skus que estão zerados no bling e faz uma lista
-    # filtra os anuncios que estão no full
-    # para cada sku zerado, faz uma busca desses que estão no full
-    # se for verdadeiro, desliga o flex
-
-    # não podemos esquecer de religar os flex para aqueles que têm estoque no blign
   end
 end

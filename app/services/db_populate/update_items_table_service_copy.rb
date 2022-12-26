@@ -94,6 +94,10 @@ module DbPopulate
   end
 
   def item_attributes(parsed_item)
+    if parsed_item['body']['id'] == "MLB2879832085"
+      puts 'entrei aqui'
+      pp parsed_item
+    end
     {
       ml_item_id: parsed_item['body']['id'],
       title: parsed_item['body']['title'],

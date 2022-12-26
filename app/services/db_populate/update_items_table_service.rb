@@ -38,18 +38,37 @@ module DbPopulate
     def populate_db_variations(parsed_item)
       return unless parsed_item['body']['variations'].present?
 
-      puts 'encontrou variacao, salvando'
+      item = Item.find(parsed_item['body']['id'])
       parsed_item['body']['variations'].each do |variation|
-        puts variation['id']
-        variation = Variation.find_or_initialize_by(variation_id: variation['id'])
-        variation.variation_id = variation['id']
-        variation.sku = variation['seller_custom_field']
-        variation.ml_item_id = parsed_item['body']['id']
-        puts variation.save
+        attributes = {
+          variation_id: variation['id'],
+          sku: variation['seller_custom_field']
+        }
+        begin
+          variation = Variation.find(variation['id'])
+          variation.update(attributes)
+        rescue ActiveRecord::RecordNotFound
+          item.variations.create(attributes)
+          nil
+        end
       end
     end
 
     def item_attributes(parsed_item)
+      @sku = nil
+      if parsed_item['body']['seller_custom_field'].blank?
+        parsed_item['body']['attributes'].each do |attribute|
+          pp parsed_item['body']['id'] if parsed_item['body']['id'] == 'MLB2951630117'
+          pp parsed_item['body']['id'] if parsed_item['body']['id'] == 'MLB3055032670'
+          pp parsed_item['body']['id'] if parsed_item['body']['id'] == 'MLB2936082031'
+          if attribute['id'] == 'SELLER_SKU'
+            @sku = attribute['value_name']
+          end
+        end
+      else
+        @sku = parsed_item['body']['seller_custom_field']
+      end
+
       {
         ml_item_id: parsed_item['body']['id'],
         title: parsed_item['body']['title'],
@@ -60,10 +79,8 @@ module DbPopulate
         sold_quantity: parsed_item['body']['sold_quantity'],
         logistic_type: parsed_item['body']['shipping']['logistic_type'],
         free_shipping: parsed_item['body']['shipping']['free_shipping'],
-        sku: parsed_item['body']['seller_custom_field']
+        sku: @sku
       }
-    rescue StandardError => e
-      # puts e
     end
   end
 end
