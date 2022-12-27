@@ -28,38 +28,49 @@ class FulfillmentController < ApplicationController
     # render json: items_without_stock, status: 200
   end
 
+  def get_sku_qtt(sku)
+    sku = Stock.find(sku)
+    sku.quantity
+  end
+
   def flex
+    @linhas_tabela = []
     items_full = Item.where(logistic_type: 'fulfillment')
     items_full.each do |item|
       # para cada anuncio do full, verifica se tem variacoes
       if item.variations.present?
-        pp item.variations
+        # para cada uma das variações, verifica seu SKU
         item.variations.each do |item_variation|
-          next if item_variation.sku.nil?
+          if item_variation.sku.blank?
+            puts ' ---- possui variação, MAS NÃO POSSUI SKU cadastrado na variação ----'
+            puts item.ml_item_id
+            puts item.sku
+            puts get_sku_qtt(item.sku)
+            puts '------------------------------------------------------------------'
+            @linhas_tabela << {ml_item_id: item.ml_item_id, sku: item.sku, quantity: get_sku_qtt(item.sku), flex: true }
+            # aqui temos que pegar o sku geral do anúncio, como se não tivesse variação
+          else
+            puts '------ o anúncio possui variação e tem SKU cadastrado na variação -----'
+            puts "ml_item_id: #{item_variation.item_id}"
+            puts "sku: #{item_variation.sku}"
+            qtt = get_sku_qtt(item_variation.sku)
+            puts "quantidade do sku: #{qtt}"
+            puts '------------------------------------------------------------------'
+            @linhas_tabela << {ml_item_id: item_variation.item_id, sku: item_variation.sku, quantity: get_sku_qtt(item_variation.sku), flex: true }
 
-          puts 'o anúncio possui variação e tem SKU cadastrado na variação'
-          # verifica no estoque físico a quantidade desse sku
-          stock_sku = Stock.find_by(sku: item_variation.sku)
-          puts stock_sku.quantity
+            # montar o dict para colocar no array
+          end
         end
+      # caso NÃO tenha variação
       else
         # vamos utilizar o sku do proprio anuncio
-        puts 'o anúncio possui variação MAS NÃO TEM SKU cadastrado na variação'
-        begin
-          stock_sku = Stock.find_by(sku: item.sku)
-          if stock_sku.nil?
-            puts "naõ encontrou o SKU #{item.sku} no BLING" 
-          end
-          puts '-----------------'
-          puts stock_sku
-          puts stock_sku.quantity
-        rescue ActiveRecord::RecordNotFound
-          puts 'não encontrou o SKU na tabela de estoque'
-          puts item.sku
-        end
+        puts '----  o anúncio NÃO tem variação, vamos usar o sku geral ----'
         puts item.sku
-        puts stock_sku.quantity
+        puts get_sku_qtt(item.sku)
+        puts '------------------------------------------------------------------'
+        @linhas_tabela << {ml_item_id: item.ml_item_id, sku: item.sku, quantity: get_sku_qtt(item.sku), flex: true }
       end
     end
+    render json: @linhas_tabela, status: 200
   end
 end

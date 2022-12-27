@@ -58,9 +58,6 @@ module DbPopulate
       @sku = nil
       if parsed_item['body']['seller_custom_field'].blank?
         parsed_item['body']['attributes'].each do |attribute|
-          pp parsed_item['body']['id'] if parsed_item['body']['id'] == 'MLB2951630117'
-          pp parsed_item['body']['id'] if parsed_item['body']['id'] == 'MLB3055032670'
-          pp parsed_item['body']['id'] if parsed_item['body']['id'] == 'MLB2936082031'
           if attribute['id'] == 'SELLER_SKU'
             @sku = attribute['value_name']
           end
