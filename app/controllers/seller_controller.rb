@@ -3,10 +3,11 @@ require_relative '../services/api_mercado_livre/authentication_service'
 class SellerController < ApplicationController
   def index
     Seller.all.each do |seller|
-      # puts 'autenticando todos os sellers no controller seller_controller'
+      puts 'autenticando todos os sellers no controller seller_controller'
       ApiMercadoLivre::AuthenticationService.call(seller)
     end
     @sellers = Seller.all
+    #render plain: "OK"
     render json: @sellers, status: 200
   end
 
