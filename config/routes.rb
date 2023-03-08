@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get 'fulfillment/index'
   get 'fulfillment/to-increase-stock', to: 'fulfillment#to_increase_stock'
   get 'fulfillment/flex', to: 'fulfillment#flex'
+  post 'fulfillment/flex', to: 'fulfillment#flex_turn_off'
   get 'seller/index'
   get 'seller/auth-all', to: 'seller#auth_all'
   post 'seller/create', to: 'seller#create'

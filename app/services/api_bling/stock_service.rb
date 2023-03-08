@@ -53,6 +53,3 @@ module ApiBling
     end
   end
 end
-
-apikey = 'e50a0c2687805c4dcd13666d1b1ed7acea38c5250ffe7d972b7955097031aba93bb6d51a'
-ApiBling::StockService.call(apikey)
