@@ -29,7 +29,12 @@ class FulfillmentController < ApplicationController
   end
 
   def get_sku_qtt(sku)
-    sku = Stock.find(sku)
+    begin
+      sku = Stock.find(sku)
+    rescue ActiveRecord::RecordNotFound => e
+      sku = 'NAO-ENCONTRADO'
+      return 0
+    end
     sku.quantity
   end
 
