@@ -54,6 +54,7 @@ class ItemController < ApplicationController
   end
 
   def free_shipping
+    DbPopulate::VariationsPopulateDb.call
     free_shipping_items = Item.where(free_shipping: true).where(price: 0..78.99)
     render json: free_shipping_items.to_json, status: 200
   end
