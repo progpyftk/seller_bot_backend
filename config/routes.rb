@@ -18,5 +18,7 @@ Rails.application.routes.draw do
   get 'item/logistic-events', to: 'item#logistic_events'
   get 'item/free-shipping', to: 'item#free_shipping'
   post 'item/free-shipping', to: 'item#change_to_free_shipping'
+  post 'item/fiscal-data', to: 'item#fiscal_data'
+  post 'item/general-data', to: 'item#general_data'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

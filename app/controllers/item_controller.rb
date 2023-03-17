@@ -68,4 +68,40 @@ class ItemController < ApplicationController
       render json: e, status: 400
     end
   end
+
+  def fiscal_data
+    puts 'Chamando a função fiscal_data'
+    item_params = params.require(:item).permit(:ml_item_id)
+    item = Item.find(item_params[:ml_item_id])
+    puts 'Recebeu o post com as seguintes informações'
+    pp item_params
+    # Colocar aqui um teste que se não encontrar o anúncio, retornar que não encontrou
+    begin
+      resp = JSON.parse(ApiMercadoLivre::ItemFiscalData.call(item))
+      puts '--------- Response com JSON Parse -----------'
+      pp resp
+      render json: resp, status: 200
+    rescue RestClient::ExceptionWithResponse => e
+      render json: e, status: 400
+    end
+  end
+
+  def general_data
+    puts 'Chamando a função general_data'
+    item_params = params.require(:item).permit(:ml_item_id)
+    item = Item.find(item_params[:ml_item_id])
+    puts 'Recebeu o post com as seguintes informações'
+    pp item_params
+    # Colocar aqui um teste que se não encontrar o anúncio, retornar que não encontrou
+    begin
+      resp = JSON.parse(ApiMercadoLivre::ItemGeneralData.call(item))
+      puts '--------- Response com JSON Parse -----------'
+      pp resp
+      render json: resp, status: 200
+    rescue RestClient::ExceptionWithResponse => e
+      render json: e, status: 400
+    end
+  end
+
+
 end

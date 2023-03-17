@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_21_133909) do
+ActiveRecord::Schema.define(version: 2023_03_10_161748) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(version: 2022_12_21_133909) do
     t.string "permalink"
     t.boolean "free_shipping"
     t.string "sku"
+    t.boolean "flex"
     t.index ["seller_id"], name: "index_items_on_seller_id"
   end
 

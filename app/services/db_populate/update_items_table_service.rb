@@ -55,6 +55,10 @@ module DbPopulate
     end
 
     def item_attributes(parsed_item)
+      # tratamento necessário do sku
+      if parsed_item['body']['id'] == 'MLB3175019360'
+        pp parsed_item
+      end
       @sku = nil
       if parsed_item['body']['seller_custom_field'].blank?
         parsed_item['body']['attributes'].each do |attribute|
@@ -66,6 +70,18 @@ module DbPopulate
         @sku = parsed_item['body']['seller_custom_field']
       end
 
+     
+
+      # tratamento flex
+      @flex = false
+      if parsed_item['body']['shipping']['tags'].blank?
+        @flex = false
+      else
+        if parsed_item['body']['shipping']['tags'].include?('self_service_in')
+          @flex = true
+        end
+      end
+  
       {
         ml_item_id: parsed_item['body']['id'],
         title: parsed_item['body']['title'],
@@ -76,7 +92,8 @@ module DbPopulate
         sold_quantity: parsed_item['body']['sold_quantity'],
         logistic_type: parsed_item['body']['shipping']['logistic_type'],
         free_shipping: parsed_item['body']['shipping']['free_shipping'],
-        sku: @sku
+        sku: @sku,
+        flex: @flex
       }
     end
   end

@@ -1,7 +1,3 @@
-require 'rest-client'
-require 'json'
-require 'pp'
-
 # ML Api
 module ApiMercadoLivre
   # retorna a chamada de um anuncio
