@@ -2,7 +2,32 @@ require_relative '../services/db_populate/update_items_table_service'
 
 class FulfillmentController < ApplicationController
   def index
-    DbPopulate::UpdateItemsTableService.call
+
+    # ATENÇÃO AQUI !! A CHAMADA DEVE SER FEITA PARA CADA SELLER, NÃO POSSO CHAMAR OS ANUNCIOS DE UM SELLER COM DE OUTRO
+    # TEM QUE SER MODELADO DE ACORDO COM O SELLER !!
+
+    # 1. Para cada seller pegar todos anúncios e depois no final fazer uma única lista e enviar para o frontend
+    # a. ajeitar o serviço ApiMercadoLivre::FulfillmentPausedItems para que seja feito para cada seller
+    # b. o ideal é o serviço já retornar tudo, vai ficar melhor
+    resp = ApiMercadoLivre::FulfillmentPausedItems.call
+    # gerar a lista das urls que deverão ser chamadas
+    resp.each_slice(20) do |batch|
+      puts '---- batch of 20 ----'
+      url_prefix = "https://api.mercadolibre.com/items?ids="
+      url_items_ids = ""
+      url_attributes = "&attributes=price,title,logistic,permalink,seller_id,available_quantity,sold_quantity"
+      puts batch
+      batch.each do |item_id|
+        url_items_ids("#{item_id},")
+      end
+    end
+
+    # chamar as urls pela api
+
+
+    render json: resp, status: 200
+
+    """DbPopulate::UpdateItemsTableService.call
     items = Item.where(logistic_type: 'fulfillment').where(available_quantity: 0)
     @resp = []
     items.each do |item|
@@ -10,7 +35,7 @@ class FulfillmentController < ApplicationController
       hash1['seller_nickname'] = item.seller.nickname
       @resp << hash1
     end
-    render json: @resp, status: 200
+    render json: @resp, status: 200"""
   end
 
   def to_increase_stock

@@ -65,9 +65,11 @@ module ApiMercadoLivre
         'refresh_token' => @seller.refresh_token
       }.to_json
       begin
+        puts 'está no begin'
         @response = RestClient.post(url, payload, headers)
         save_tokens(@response)
       rescue RestClient::ExceptionWithResponse => e
+        puts 'entrou no rescue por algum motivo!!'
         save_tokens(@response)
         @response = e.response
       end

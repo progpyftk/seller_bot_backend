@@ -21,6 +21,7 @@ module ApiMercadoLivre
     def multiget_items
       resp = []
       urls_list.each do |url|
+        puts url
         # aqui faz uma chamada para 20 anuncios de uma única vez, e vai concatenando os resultados
         # até formar um array com os dados de todoss os anuncios
         resp.concat(JSON.parse(RestClient.get(url, auth_header)))

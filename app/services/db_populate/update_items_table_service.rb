@@ -56,9 +56,7 @@ module DbPopulate
 
     def item_attributes(parsed_item)
       # tratamento necessário do sku
-      if parsed_item['body']['id'] == 'MLB3175019360'
-        pp parsed_item
-      end
+      pp parsed_item
       @sku = nil
       if parsed_item['body']['seller_custom_field'].blank?
         parsed_item['body']['attributes'].each do |attribute|
