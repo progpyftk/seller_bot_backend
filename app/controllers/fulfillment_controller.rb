@@ -2,55 +2,22 @@ require_relative '../services/db_populate/update_items_table_service'
 
 class FulfillmentController < ApplicationController
   def index
-
-    # ATENÇÃO AQUI !! A CHAMADA DEVE SER FEITA PARA CADA SELLER, NÃO POSSO CHAMAR OS ANUNCIOS DE UM SELLER COM DE OUTRO
-    # TEM QUE SER MODELADO DE ACORDO COM O SELLER !!
-
-    # 1. Para cada seller pegar todos anúncios e depois no final fazer uma única lista e enviar para o frontend
-    # a. ajeitar o serviço ApiMercadoLivre::FulfillmentPausedItems para que seja feito para cada seller
-    # b. o ideal é o serviço já retornar tudo, vai ficar melhor
-    resp = ApiMercadoLivre::FulfillmentPausedItems.call
-    # gerar a lista das urls que deverão ser chamadas
-    resp.each_slice(20) do |batch|
-      puts '---- batch of 20 ----'
-      url_prefix = "https://api.mercadolibre.com/items?ids="
-      url_items_ids = ""
-      url_attributes = "&attributes=price,title,logistic,permalink,seller_id,available_quantity,sold_quantity"
-      puts batch
-      batch.each do |item_id|
-        url_items_ids("#{item_id},")
-      end
+    @items = []
+    Seller.all.each do |seller|
+      items_list = ApiMercadoLivre::FulfillmentPausedItems.call(seller)
+      attributes = ['id', 'price', 'title', 'shipping', 'permalink', 'seller_id', 'available_quantity', 'sold_quantity']
+      url_list = FunctionalServices::BuildUrlList.call(items_list, attributes)
+      @items.push(*ApiMercadoLivre::ReadApiFromUrl.call(seller, url_list))
     end
-
-    # chamar as urls pela api
-
-
-    render json: resp, status: 200
-
-    """DbPopulate::UpdateItemsTableService.call
-    items = Item.where(logistic_type: 'fulfillment').where(available_quantity: 0)
-    @resp = []
-    items.each do |item|
-      hash1 = item.attributes
-      hash1['seller_nickname'] = item.seller.nickname
-      @resp << hash1
+    @items.map! { |each_hash| each_hash['body'] }
+    @items.map! do |hash|
+      hash['ml_item_id'] = hash['id']
+      hash['logistic_type'] = hash['shipping']['logistic_type']
+      hash.delete('shipping')
+      hash.delete('id')
+      hash
     end
-    render json: @resp, status: 200"""
-  end
-
-  def to_increase_stock
-    items_without_stock = Item.where.not(logistic_type: 'fulfillment').where(available_quantity: 0)
-    @items_need_increase_stock = []
-    items_without_stock.each do |item|
-      result = LogisticEvent.where(item_id: item.ml_item_id)
-                            .where(old_logistic: 'fulfillment')
-                            .where(change_time: (Time.now.midnight - 200.day)..(Time.now.midnight + 2.day))
-                            .order('change_time').last
-      @items_need_increase_stock.push(item) unless result.nil?
-    end
-
-    render json: @items_need_increase_stock, status: 200
-    # render json: items_without_stock, status: 200
+    render json: @items, status: 200
   end
 
   def get_sku_qtt(sku)

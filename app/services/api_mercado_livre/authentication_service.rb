@@ -46,8 +46,6 @@ module ApiMercadoLivre
         save_tokens(@response)
       rescue RestClient::ExceptionWithResponse => e
         puts 'Deu algum problema no Response'
-        puts e
-        puts @response
         @seller.auth_status = e.response.code
         @seller.last_auth_at = DateTime.current
         @seller.save
@@ -65,7 +63,6 @@ module ApiMercadoLivre
         'refresh_token' => @seller.refresh_token
       }.to_json
       begin
-        puts 'está no begin'
         @response = RestClient.post(url, payload, headers)
         save_tokens(@response)
       rescue RestClient::ExceptionWithResponse => e
