@@ -15,10 +15,8 @@ module ApiMercadoLivre
 
     def call
       if first_access?
-        puts 'entrou no first_access'
         retrieve_first_access_tokens
       else
-        puts 'entrou no auth_with_refresh_token'
         auth_with_refresh_token
       end
       @response
@@ -39,13 +37,10 @@ module ApiMercadoLivre
         'code' => @seller.code,
         'redirect_uri' => 'https://localhost:3000'
       }.to_json
-      puts payload
       begin
         @response = RestClient.post(url, payload, headers)
-        puts @response
         save_tokens(@response)
       rescue RestClient::ExceptionWithResponse => e
-        puts 'Deu algum problema no Response'
         @seller.auth_status = e.response.code
         @seller.last_auth_at = DateTime.current
         @seller.save
@@ -66,7 +61,6 @@ module ApiMercadoLivre
         @response = RestClient.post(url, payload, headers)
         save_tokens(@response)
       rescue RestClient::ExceptionWithResponse => e
-        puts 'entrou no rescue por algum motivo!!'
         save_tokens(@response)
         @response = e.response
       end

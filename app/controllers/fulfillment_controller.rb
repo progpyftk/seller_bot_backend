@@ -30,31 +30,38 @@ class FulfillmentController < ApplicationController
       flex: "",
       permalink: "",
   }
-    @fulfillment_items = []
+    pp ApiMercadoLivre::FindSellerByItemId.call("MLB2164346425")
+   """ @fulfillment_items = []
     @items = []
     Seller.all.each do |seller|
-      puts "------ #{seller.nickname} -------"
       @fulfillment_items = ApiMercadoLivre::FulfillmentActiveItems.call(seller)
       url_list = FunctionalServices::BuildUrlList.call(@fulfillment_items) # aqui poderia ter selecionado os atributos
       @items.push(*ApiMercadoLivre::ReadApiFromUrl.call(seller, url_list))
       @items.each do |item|
-        puts item['body']['id']
         if item['body']['variations'].present?
+          #puts '----- Possuí variação --------'
           # chamamos os dados fiscais, pois é certo de ter o sku nos anúncios do fulfillment
-          item_fiscal_data = ApiMercadoLivre::ItemFiscalData.call(item)
-          item_fiscal_data['variations'].each do |variation|
-            puts variation['id']
-            puts variation['sku']['sku']
+          item_fiscal_data = ApiMercadoLivre::ItemFiscalData.call(item['body']['id'], seller.ml_seller_id)
+          if not item_fiscal_data.blank?
+            item_fiscal_data['variations'].each do |variation|
+              #puts variation['id']
+              #puts variation['sku']['sku']
+            end
+          else
+            #puts 'o response da chamada dos dados fiscais veio vazia. Vericar o porque'
+            #puts item['body']['id']
           end
           # montar a linha para cada variação
         else
+          #puts '----- NÃ0  Possuí variação --------'
           sku = sku_item_without_variation(item)
           # montar a linha
         end
         # para cada uma das linhas, procurar na api do bling a quantidade física disponível (que virá do bling de acordo com o SKU dessa tabela)
       end
-    end
-    render json: @items_list, status: 200
+    end"""
+    # render json: @items_list, status: 200
+    render json: [{}], status: 200
   end
 
   # ITEMS SEM VARIAÇÃO - buscar na API principal, se não encontrar, buscar na API de dados fiscais

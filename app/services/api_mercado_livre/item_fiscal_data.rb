@@ -3,9 +3,9 @@ module ApiMercadoLivre
   # retorna a chamada de um anuncio
   class ItemFiscalData < ApplicationService
 
-    def initialize(item)
-      @item = item.ml_item_id
-      @seller = item.seller
+    def initialize(item_id)
+      @item_id = item_id
+      @seller = nil
       @response = nil
     end
 
@@ -15,9 +15,16 @@ module ApiMercadoLivre
     end
 
     def search_item
-      url = "https://api.mercadolibre.com/items/#{@item}/fiscal_information/detail"
-      @response = (RestClient.get(url, auth_header))
-      @response
+      @seller = ApiMercadoLivre::FindSellerByItemId.call(@item_id)  
+      url = "https://api.mercadolibre.com/items/#{@item_id}/fiscal_information/detail"
+      begin
+        @response = JSON.parse((RestClient.get(url, auth_header)))
+        pp @response
+      rescue RestClient::ExceptionWithResponse => e
+        puts 'Deu algum erro no RestClient'
+        puts e.response
+        puts e
+      end
     end
 
     def auth_header
