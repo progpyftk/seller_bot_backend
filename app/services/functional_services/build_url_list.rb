@@ -1,7 +1,7 @@
 module FunctionalServices
-    # retorna uma lista com várias urls em que cada uma contém os ids e attiburtes para uma chamada de multget
+    # retorna uma lista com várias urls em que cada uma contém os ids e attributes para uma chamada de multget
     class BuildUrlList  < ApplicationService
-        def initialize(items_list, attributes)
+        def initialize(items_list, attributes = [])
           @items_list = items_list
           @attributes = attributes
           @urls_list = []
@@ -15,7 +15,12 @@ module FunctionalServices
         def build_url_list
             @items_list.each_slice(20) do |url_items_ids|
                 url_prefix = "https://api.mercadolibre.com/items?ids="
-                url_final = url_prefix + url_items_ids.join(',') + "&attributes=#{@attributes.join(',')}"
+                if not @attributes.blank?
+                    url_final = url_prefix + url_items_ids.join(',') + "&attributes=#{@attributes.join(',')}"
+                else
+                    puts 'Attributes em branco!!'
+                    url_final = url_prefix + url_items_ids.join(',')
+                end
                 @urls_list.push(*url_final)
             end
             @urls_list

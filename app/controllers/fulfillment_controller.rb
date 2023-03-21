@@ -22,25 +22,61 @@ class FulfillmentController < ApplicationController
 
 
   def flex
-    @items_list = []
-    @linhas_tabela = []
+    item_data = {
+      ml_item_id: "",
+      variation: "",
+      variation_id: "",
+      local_quantity: "",
+      flex: "",
+      permalink: "",
+  }
+    @fulfillment_items = []
+    @items = []
     Seller.all.each do |seller|
-      @item_list = ApiMercadoLivre::FulfillmentActiveItems.call(seller)
+      puts "------ #{seller.nickname} -------"
+      @fulfillment_items = ApiMercadoLivre::FulfillmentActiveItems.call(seller)
+      url_list = FunctionalServices::BuildUrlList.call(@fulfillment_items) # aqui poderia ter selecionado os atributos
+      @items.push(*ApiMercadoLivre::ReadApiFromUrl.call(seller, url_list))
+      @items.each do |item|
+        puts item['body']['id']
+        if item['body']['variations'].present?
+          # chamamos os dados fiscais, pois é certo de ter o sku nos anúncios do fulfillment
+          item_fiscal_data = ApiMercadoLivre::ItemFiscalData.call(item)
+          item_fiscal_data['variations'].each do |variation|
+            puts variation['id']
+            puts variation['sku']['sku']
+          end
+          # montar a linha para cada variação
+        else
+          sku = sku_item_without_variation(item)
+          # montar a linha
+        end
+        # para cada uma das linhas, procurar na api do bling a quantidade física disponível (que virá do bling de acordo com o SKU dessa tabela)
+      end
     end
-    # filtra os anúncios que estão no Fulfillmente
-    # pega as informações de cada um desses anúncios
-    # avaiable_quantiy
-    # flex ligado ou desligado
-    # verifica se o anúncio tem variação
-    # se tiver, vamos pegar os dados fiscais, que retornará o sku de cada variação
-    # se não tiver variação, o sku pode estar em dois campos: 
-    # 1 - ['body']['seller_custom_field']
-    # 2 - ['body']['attributes'] attribute['id'] == 'SELLER_SKU' attribute['value_name']
-    # aqui teremos um array com todas as variações e anúncios e seus skus, dai em diante, basta comparar o sku de cada um com a api do bling
-
-
     render json: @items_list, status: 200
   end
+
+  # ITEMS SEM VARIAÇÃO - buscar na API principal, se não encontrar, buscar na API de dados fiscais
+  def sku_item_without_variation(item)
+    @sku = nil
+    if item['body']['seller_custom_field'].blank?
+      item['body']['attributes'].each do |attribute|
+        if attribute['id'] == 'SELLER_SKU'
+          @sku = attribute['value_name']
+        end
+      end
+    else
+      @sku = item['body']['seller_custom_field']
+    end
+    if @sku.nil?
+      item_fiscal_data = ApiMercadoLivre::ItemFiscalData.call(item)
+    end
+    @sku
+  end
+
+
+
 
   def flex_turn_off
     puts 'RECEBENDO POST DO AXIOS CARALHO'

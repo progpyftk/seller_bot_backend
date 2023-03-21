@@ -15,11 +15,9 @@ module ApiMercadoLivre
     end
 
     def search_item
-      # https://developers.mercadolivre.com.br/pt_br/envio-dos-dados-fiscais
       url = "https://api.mercadolibre.com/items/#{@item}/fiscal_information/detail"
       @response = (RestClient.get(url, auth_header))
-      puts '--------Response Original --------------'
-      pp @response
+      @response
     end
 
     def auth_header
