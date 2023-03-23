@@ -19,7 +19,6 @@ module ApiMercadoLivre
       url = "https://api.mercadolibre.com/items/#{@item_id}/fiscal_information/detail"
       begin
         @response = JSON.parse((RestClient.get(url, auth_header)))
-        pp @response
       rescue RestClient::ExceptionWithResponse => e
         puts 'Deu algum erro no RestClient'
         puts e.response
@@ -28,7 +27,7 @@ module ApiMercadoLivre
     end
 
     def auth_header
-      ApiMercadoLivre::AuthenticationService.call(@seller)
+      # ApiMercadoLivre::AuthenticationService.call(@seller)
       { 'Authorization' => "Bearer #{@seller.access_token}" }
     end
   end

@@ -14,7 +14,6 @@ module ApiMercadoLivre
   
       def find_seller
         Seller.all.each do |seller|
-          puts '---- seller rodando ----'
           url = "https://api.mercadolibre.com/items?ids=#{@item_id}&attributes=seller_id"
           @response = RestClient.get(url, auth_header(seller))
           parsed_item = JSON.parse(@response)
@@ -27,7 +26,7 @@ module ApiMercadoLivre
       end
   
       def auth_header(seller)
-        ApiMercadoLivre::AuthenticationService.call(seller)
+        # ApiMercadoLivre::AuthenticationService.call(seller)
         { 'Authorization' => "Bearer #{seller.access_token}" }
       end
     end

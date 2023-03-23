@@ -22,46 +22,46 @@ class FulfillmentController < ApplicationController
 
 
   def flex
-    item_data = {
-      ml_item_id: "",
-      variation: "",
-      variation_id: "",
-      local_quantity: "",
-      flex: "",
-      permalink: "",
-  }
-    pp ApiMercadoLivre::FindSellerByItemId.call("MLB2164346425")
-   """ @fulfillment_items = []
+    @sku_list = ApiBling::StockService.call
+    @linhas_tabela = []
+    @fulfillment_items = []
     @items = []
     Seller.all.each do |seller|
       @fulfillment_items = ApiMercadoLivre::FulfillmentActiveItems.call(seller)
-      url_list = FunctionalServices::BuildUrlList.call(@fulfillment_items) # aqui poderia ter selecionado os atributos
+      url_list = FunctionalServices::BuildUrlList.call(@fulfillment_items, ['id','seller_id' ,'variations', 'shipping', 'permalink', 'seller_custom_field', 'attributes']) # aqui poderia ter selecionado os atributos
       @items.push(*ApiMercadoLivre::ReadApiFromUrl.call(seller, url_list))
-      @items.each do |item|
-        if item['body']['variations'].present?
-          #puts '----- Possuí variação --------'
-          # chamamos os dados fiscais, pois é certo de ter o sku nos anúncios do fulfillment
-          item_fiscal_data = ApiMercadoLivre::ItemFiscalData.call(item['body']['id'], seller.ml_seller_id)
-          if not item_fiscal_data.blank?
-            item_fiscal_data['variations'].each do |variation|
-              #puts variation['id']
-              #puts variation['sku']['sku']
-            end
-          else
-            #puts 'o response da chamada dos dados fiscais veio vazia. Vericar o porque'
-            #puts item['body']['id']
+    end
+    @items.each do |item|
+      if item['body']['variations'].present?
+        item_fiscal_data = ApiMercadoLivre::ItemFiscalData.call(item['body']['id'])
+        if not item_fiscal_data.blank?
+          item_fiscal_data['variations'].each do |variation|
+            quantity = @sku_list[variation['sku']['sku']]
+            @linhas_tabela.push(line_attributes(item, variation['sku']['sku'], quantity, variation['id'], true))
           end
-          # montar a linha para cada variação
-        else
-          #puts '----- NÃ0  Possuí variação --------'
-          sku = sku_item_without_variation(item)
-          # montar a linha
         end
-        # para cada uma das linhas, procurar na api do bling a quantidade física disponível (que virá do bling de acordo com o SKU dessa tabela)
+      else
+        sku = sku_item_without_variation(item)        
+        quantity = @sku_list[sku]
+        @linhas_tabela.push(line_attributes(item, sku, quantity,nil, false))
       end
-    end"""
-    # render json: @items_list, status: 200
-    render json: [{}], status: 200
+    end
+    @linhas_tabela
+    render json: @linhas_tabela, status: 200
+  end
+
+  def line_attributes(item, sku, quantity,variation_id, variation)
+    item['body']['shipping']['tags'].include?('self_service_in') ? flex="Ligado" : flex="Desligado"
+    {
+      ml_item_id: item['body']['id'],
+      seller_nickname: Seller.find_by(ml_seller_id: item['body']['seller_id']).nickname,
+      variation: variation,
+      variation_id: variation_id,
+      quantity: quantity,
+      flex: flex,
+      permalink: item['body']['permalink'],
+      sku: sku,
+    }
   end
 
   # ITEMS SEM VARIAÇÃO - buscar na API principal, se não encontrar, buscar na API de dados fiscais
