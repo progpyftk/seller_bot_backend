@@ -1,22 +1,24 @@
 # ML Api
 module ApiMercadoLivre
     class FlexTurnOff < ApplicationService
-      def initialize(item)
-        @item = item
-        @response = true
+      def initialize(ml_item_id)
+        @ml_item_id = ml_item_id
+        @response = nil
       end
       
       def call
-        check_flex
+        turn_off_flex
         @response
       end
   
-      def check_flex
-        headers = { 'Authorization' => "Bearer #{@item.seller.access_token}",
+      def turn_off_flex
+        puts 'desligando o flex'
+        puts @ml_item_id
+        seller = ApiMercadoLivre::FindSellerByItemId.call(@ml_item_id)
+        headers = { 'Authorization' => "Bearer #{seller.access_token}",
                     'content-type' => 'application/json',
                     'accept' => 'application/json' }
-        url = "https://api.mercadolibre.com/sites/MLB/shipping/selfservice/items/#{@item.ml_item_id}"
-        
+        url = "https://api.mercadolibre.com/sites/MLB/shipping/selfservice/items/#{@ml_item_id}"
         begin
           @response = RestClient.delete(url, headers)
           @response = @response.code
