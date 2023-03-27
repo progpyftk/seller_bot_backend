@@ -21,9 +21,7 @@ module ApiMercadoLivre
         headers = { 'Authorization' => "Bearer #{@seller.access_token}",
                       'content-type' => 'application/json',
                       'accept' => 'application/json' }
-        url = "https://api.mercadolibre.com/users/#{@seller.ml_seller_id}/items/search?status=active"
-        url = "https://api.mercadolibre.com/users/#{@seller.ml_seller_id}/items/search?search_type=scan&limit=1000&status=active"
-        url = "https://api.mercadolibre.com/sites/MLB/search?seller_id=#{@seller.ml_seller_id}&shipping_cost=free&price=*-70.0&status=active<80&attributes=seller_id"
+        url = "https://api.mercadolibre.com/sites/MLB/search?seller_id=#{@seller.ml_seller_id}&shipping_cost=free&price=*-70.0&status=active&attributes=seller_id"
         hydra = Typhoeus::Hydra.hydra
         first_request = Typhoeus::Request.new(url, method: :get, headers: headers)
         hydra.queue first_request
