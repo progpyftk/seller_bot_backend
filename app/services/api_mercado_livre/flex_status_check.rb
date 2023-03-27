@@ -1,6 +1,6 @@
 # ML Api
 module ApiMercadoLivre
-    class FlexTurnOff < ApplicationService
+    class FlexStatusCheck < ApplicationService
       def initialize(item)
         @item = item
         @response = true
@@ -18,7 +18,7 @@ module ApiMercadoLivre
         url = "https://api.mercadolibre.com/sites/MLB/shipping/selfservice/items/#{@item.ml_item_id}"
         
         begin
-          @response = RestClient.delete(url, headers)
+          @response = RestClient.get(url, headers)
           @response = @response.code
         rescue RestClient::ExceptionWithResponse => e
           @response = e.http_code

@@ -54,9 +54,20 @@ class ItemController < ApplicationController
   end
 
   def free_shipping
-    seller = Seller.find_by(nickname: 'Bluevix')
-    resp = ApiMercadoLivre::FreeShipping.call(seller)
-    render json: resp , status: 200
+    @items = []
+    Seller.all.each do |seller|
+      puts "--------- #{seller.nickname} ----------"
+      # aqui deveria filtrar também na API os com frete grátis, porém não consegui.
+      items_list = ApiMercadoLivre::ActiveItems.call(seller)
+      puts "----- Active Items: #{items_list.length}"
+      attributes = ['id', 'price', 'title', 'shipping', 'permalink', 'seller_id']
+      url_list = FunctionalServices::BuildUrlList.call(items_list, attributes)
+      @items.push(*ApiMercadoLivre::ReadApiFromUrl.call(seller, url_list))
+    end
+    @items.delete_if { |h| h['body']['price'] > 79}
+    @items.delete_if { |h| h['body']['shipping']['free_shipping'] == false}
+    table = table_lines(@items)
+    render json: table , status: 200
   end
 
 
@@ -79,7 +90,7 @@ class ItemController < ApplicationController
 
   def change_to_free_shipping
     item_params = params.require(:item).permit(:ml_item_id)
-    item_params[:ml_item_id]
+    item = Item.find(item_params[:ml_item_id])
     begin
       resp = JSON.parse(ApiMercadoLivre::FreeShipping.call(item))
       render json: resp, status: 200

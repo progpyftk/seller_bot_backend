@@ -24,7 +24,7 @@ class FulfillmentController < ApplicationController
   def flex
     @sku_list = ApiBling::StockService.call
     @linhas_tabela = []
-    #@linhas_tabela.push({:ml_item_id=>"MLB3175038821", :seller_nickname=>"Bluevix", :variation=>true, :variation_id=>"XXXXXXX", :quantity=>9999, :flex=>"Ligado", :link=>"https://produto.mercadolivre.com.br/MLB-3175038821-fonte-carregador-para-notebook-acer-n17908-65w-_JM", :sku=>"FONTE-ACER-65W"})
+    @linhas_tabela.push({:ml_item_id=>"MLB3175038821", :seller_nickname=>"Bluevix", :variation=>true, :variation_id=>"XXXXXXX", :quantity=>100, :flex=>"Ligado", :link=>"https://produto.mercadolivre.com.br/MLB-3175038821-fonte-carregador-para-notebook-acer-n17908-65w-_JM", :sku=>"FONTE-ACER-65W"})
     @fulfillment_items = []
     @items = []
     Seller.all.each do |seller|
@@ -38,15 +38,17 @@ class FulfillmentController < ApplicationController
         if not item_fiscal_data.blank?
           item_fiscal_data['variations'].each do |variation|
             quantity = @sku_list[variation['sku']['sku']]
-            if @linhas_tabela.select {|linha| linha[:ml_item_id] == item['body']['id'] }.empty? # ainda não tem o MLB, pode inserir a linha
+            puts @linhas_tabela.select {|linha| linha[:ml_item_id] == item['body']['id'] }
+            if @linhas_tabela.select {|linha| linha[:ml_item_id] == item['body']['id'] }.empty?
+              puts 'array vazio, ou seja ainda não tem o mesmo anuncio'
               @linhas_tabela.push(line_attributes(item, variation['sku']['sku'], quantity, variation['id'], true))
-            else # já existe esse MLB, vamos comparar a quantidade das variações
+            else
               linha_ja_existe = @linhas_tabela.select {|linha| linha[:ml_item_id] == item['body']['id'] }
-              if linha_ja_existe[0][:quantity] < quantity # verifica se a que ja existe tem mais ou menos no estoque
-                # nao insere a linha
-              else # se a variacao atual tem menos, então vamos retirar a linha da variacao com mais unidade e colocar dessa que tem menos
-                @linhas_tabela.delete_if { |h| h[:ml_item_id] == linha_ja_existe[0][:ml_item_id]}
-                @linhas_tabela.push(line_attributes(item, variation['sku']['sku'], quantity, variation['id'], true))
+              puts linha_ja_existe[:quantity].to_i
+              if linha_ja_existe[:quantity] < quantity
+                puts 'não vamos adicionar a nova linha!!'
+              else
+                puts 'aqui vamos ter que remover a linha antiga e colocar a nova'
               end
             end
           end
@@ -75,7 +77,6 @@ class FulfillmentController < ApplicationController
     }
   end
 
-
   # ITEMS SEM VARIAÇÃO - buscar na API principal, se não encontrar, buscar na API de dados fiscais
   def sku_item_without_variation(item)
     @sku = nil
@@ -96,8 +97,11 @@ class FulfillmentController < ApplicationController
 
 
   def flex_turn_off
+    puts 'RECEBENDO POST DO AXIOS CARALHO'
     item_params = params.require(:item).permit(:ml_item_id)
-    resposta = ApiMercadoLivre::FlexTurnOff.call(item_params[:ml_item_id])
+    item = Item.find(item_params[:ml_item_id])
+    resposta = ApiMercadoLivre::FlexTurnOff.call(item)
+    pp resposta
     render json: resposta, status: 200
   end
 

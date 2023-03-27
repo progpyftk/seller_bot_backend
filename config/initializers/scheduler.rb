@@ -8,8 +8,8 @@ s.every '5m' do
     puts "logando #{Time.now}"
   end
 
-  s.every '300m' do
+  s.every '30m' do
     puts 'atualizando DB'
-    #DbPopulate::UpdateItemsTableService.call
+    DbPopulate::UpdateItemsTableService.call
   end
   
