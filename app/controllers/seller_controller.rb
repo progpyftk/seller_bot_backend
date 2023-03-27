@@ -72,4 +72,9 @@ class SellerController < ApplicationController
     resp = ApiMercadoLivre::AuthenticationService.call(seller)
     render json: resp, status: resp.code
   end
+
+  def active_items
+    resp = ApiMercadoLivre::MultithreadActiveItems.call('Bluevix')
+    render json: resp, status: 200
+  end
 end

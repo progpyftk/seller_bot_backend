@@ -26,6 +26,8 @@ gem 'jbuilder', '~> 2.7'
 
 gem 'rest-client'
 gem 'rack-cors'
+gem 'typhoeus'
+gem 'faraday'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'

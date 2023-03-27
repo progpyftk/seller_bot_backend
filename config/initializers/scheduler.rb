@@ -1,7 +1,4 @@
 require 'rufus-scheduler'
-require_relative '../../app/services/db_populate/update_items_table_service'
-
-
 
 s = Rufus::Scheduler.singleton
 

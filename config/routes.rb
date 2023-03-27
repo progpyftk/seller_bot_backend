@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   post 'fulfillment/flex-me', to: 'fulfillment#flex_me_turn_off'
   post 'fulfillment/flex-me', to: 'fulfillment#flex_me_turn_off'
   get 'seller/index'
+  get 'seller/active-items', to: 'seller#active_items'
   get 'seller/auth-all', to: 'seller#auth_all'
   post 'seller/create', to: 'seller#create'
   post 'seller/edit', to: 'seller#edit'
