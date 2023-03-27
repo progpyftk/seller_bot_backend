@@ -2,99 +2,83 @@ require_relative '../services/db_populate/update_items_table_service'
 
 class FulfillmentController < ApplicationController
   def index
-    @items = []
-    Seller.all.each do |seller|
-      items_list = ApiMercadoLivre::FulfillmentPausedItems.call(seller)
-      attributes = ['id', 'price', 'title', 'shipping', 'permalink', 'seller_id', 'available_quantity', 'sold_quantity']
-      url_list = FunctionalServices::BuildUrlList.call(items_list, attributes)
-      @items.push(*ApiMercadoLivre::ReadApiFromUrl.call(seller, url_list))
+    DbPopulate::UpdateItemsTableService.call
+    items = Item.where(logistic_type: 'fulfillment').where(available_quantity: 0)
+    @resp = []
+    items.each do |item|
+      hash1 = item.attributes
+      hash1['seller_nickname'] = item.seller.nickname
+      @resp << hash1
     end
-    @items.map! { |each_hash| each_hash['body'] }
-    @items.map! do |hash|
-      hash['ml_item_id'] = hash['id']
-      hash['logistic_type'] = hash['shipping']['logistic_type']
-      hash.delete('shipping')
-      hash.delete('id')
-      hash
-    end
-    render json: @items, status: 200
+    render json: @resp, status: 200
   end
 
+  def to_increase_stock
+    items_without_stock = Item.where.not(logistic_type: 'fulfillment').where(available_quantity: 0)
+    @items_need_increase_stock = []
+    items_without_stock.each do |item|
+      result = LogisticEvent.where(item_id: item.ml_item_id)
+                            .where(old_logistic: 'fulfillment')
+                            .where(change_time: (Time.now.midnight - 200.day)..(Time.now.midnight + 2.day))
+                            .order('change_time').last
+      @items_need_increase_stock.push(item) unless result.nil?
+    end
+
+    render json: @items_need_increase_stock, status: 200
+    # render json: items_without_stock, status: 200
+  end
+
+  def get_sku_qtt(sku)
+    begin
+      sku = Stock.find(sku)
+    rescue ActiveRecord::RecordNotFound => e
+      sku = 'NAO-ENCONTRADO'
+      return 0
+    end
+    sku.quantity
+  end
 
   def flex
-    @sku_list = ApiBling::StockService.call
     @linhas_tabela = []
-    @linhas_tabela.push({:ml_item_id=>"MLB3175038821", :seller_nickname=>"Bluevix", :variation=>true, :variation_id=>"XXXXXXX", :quantity=>100, :flex=>"Ligado", :link=>"https://produto.mercadolivre.com.br/MLB-3175038821-fonte-carregador-para-notebook-acer-n17908-65w-_JM", :sku=>"FONTE-ACER-65W"})
-    @fulfillment_items = []
-    @items = []
-    Seller.all.each do |seller|
-      @fulfillment_items = ApiMercadoLivre::FulfillmentActiveItems.call(seller)
-      url_list = FunctionalServices::BuildUrlList.call(@fulfillment_items, ['id','seller_id' ,'variations', 'shipping', 'permalink', 'seller_custom_field', 'attributes']) # aqui poderia ter selecionado os atributos
-      @items.push(*ApiMercadoLivre::ReadApiFromUrl.call(seller, url_list))
-    end
-    @items.each do |item|
-      if item['body']['variations'].present?
-        item_fiscal_data = ApiMercadoLivre::ItemFiscalData.call(item['body']['id'])
-        if not item_fiscal_data.blank?
-          item_fiscal_data['variations'].each do |variation|
-            quantity = @sku_list[variation['sku']['sku']]
-            puts @linhas_tabela.select {|linha| linha[:ml_item_id] == item['body']['id'] }
-            if @linhas_tabela.select {|linha| linha[:ml_item_id] == item['body']['id'] }.empty?
-              puts 'array vazio, ou seja ainda não tem o mesmo anuncio'
-              @linhas_tabela.push(line_attributes(item, variation['sku']['sku'], quantity, variation['id'], true))
-            else
-              linha_ja_existe = @linhas_tabela.select {|linha| linha[:ml_item_id] == item['body']['id'] }
-              puts linha_ja_existe[:quantity].to_i
-              if linha_ja_existe[:quantity] < quantity
-                puts 'não vamos adicionar a nova linha!!'
-              else
-                puts 'aqui vamos ter que remover a linha antiga e colocar a nova'
-              end
-            end
+    items_full = Item.where(logistic_type: 'fulfillment')
+    items_full.each do |item|
+      flex_status = ApiMercadoLivre::FlexStatusCheck.call(item)
+      # para cada anuncio do full, verifica se tem variacoes
+      if item.variations.present?
+        # para cada uma das variações, verifica seu SKU
+        item.variations.each do |item_variation|
+          if item_variation.sku.blank?
+            puts ' ---- possui variação, MAS NÃO POSSUI SKU cadastrado na variação ----'
+            puts item.ml_item_id
+            puts item.sku
+            puts get_sku_qtt(item.sku)
+            puts '------------------------------------------------------------------'
+            @linhas_tabela << {ml_item_id: item.ml_item_id,seller_nickname: item.seller.nickname, link: item.permalink, sku: item.sku, quantity: get_sku_qtt(item.sku), flex: flex_status }
+            # aqui temos que pegar o sku geral do anúncio, como se não tivesse variação
+          else
+            puts '------ o anúncio possui variação e tem SKU cadastrado na variação -----'
+            puts "ml_item_id: #{item_variation.item_id}"
+            puts "sku: #{item_variation.sku}"
+            qtt = get_sku_qtt(item_variation.sku)
+            puts "quantidade do sku: #{qtt}"
+            puts '------------------------------------------------------------------'
+            @linhas_tabela << {ml_item_id: item_variation.item_id, seller_nickname: item.seller.nickname, link: item.permalink, sku: item_variation.sku, quantity: get_sku_qtt(item_variation.sku), flex: flex_status }
+
+            # montar o dict para colocar no array
           end
         end
+      # caso NÃO tenha variação
       else
-        sku = sku_item_without_variation(item)        
-        quantity = @sku_list[sku]
-        @linhas_tabela.push(line_attributes(item, sku, quantity,nil, false))
+        # vamos utilizar o sku do proprio anuncio
+        puts '----  o anúncio NÃO tem variação, vamos usar o sku geral ----'
+        puts item.sku
+        puts get_sku_qtt(item.sku)
+        puts '------------------------------------------------------------------'
+        @linhas_tabela << {ml_item_id: item.ml_item_id, seller_nickname: item.seller.nickname, link: item.permalink, sku: item.sku, quantity: get_sku_qtt(item.sku), flex: flex_status }
       end
     end
-    @linhas_tabela    
     render json: @linhas_tabela, status: 200
   end
-
-  def line_attributes(item, sku, quantity,variation_id, variation)
-    item['body']['shipping']['tags'].include?('self_service_in') ? flex="Ligado" : flex="Desligado"
-    {
-      ml_item_id: item['body']['id'],
-      seller_nickname: Seller.find_by(ml_seller_id: item['body']['seller_id']).nickname,
-      variation: variation,
-      variation_id: variation_id,
-      quantity: quantity,
-      flex: flex,
-      link: item['body']['permalink'],
-      sku: sku,
-    }
-  end
-
-  # ITEMS SEM VARIAÇÃO - buscar na API principal, se não encontrar, buscar na API de dados fiscais
-  def sku_item_without_variation(item)
-    @sku = nil
-    if item['body']['seller_custom_field'].blank?
-      item['body']['attributes'].each do |attribute|
-        if attribute['id'] == 'SELLER_SKU'
-          @sku = attribute['value_name']
-        end
-      end
-    else
-      @sku = item['body']['seller_custom_field']
-    end
-    if @sku.nil?
-      item_fiscal_data = ApiMercadoLivre::ItemFiscalData.call(item)
-    end
-    @sku
-  end
-
 
   def flex_turn_off
     puts 'RECEBENDO POST DO AXIOS CARALHO'

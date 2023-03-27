@@ -1,15 +1,25 @@
 # API KEY
 # user: seller_bot
-# API_KEY be9104a76acbdd68d12f01cd58a378609b076375d5ded1aca7e1cb223b12d3c171fe0c1e
+# API_KEY e50a0c2687805c4dcd13666d1b1ed7acea38c5250ffe7d972b7955097031aba93bb6d51a
 
 module ApiBling
   class StockService < ApplicationService
-    def initialize
-      @apikey = ENV['BLING_API_KEY']
+    def initialize(apikey)
+      @apikey = apikey
     end
 
     def call
-      read_api
+      update_stock_database
+    end
+
+    def update_stock_database
+      skus = read_api
+      skus.each do |sku, quantity|
+        product = Stock.find_or_initialize_by(sku: sku)
+        product.sku = sku
+        product.quantity = quantity
+        product.save
+      end
     end
 
     def read_api

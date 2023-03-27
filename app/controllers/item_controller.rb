@@ -54,6 +54,7 @@ class ItemController < ApplicationController
   end
 
   def free_shipping
+<<<<<<< HEAD
     @items = []
     Seller.all.each do |seller|
       puts "--------- #{seller.nickname} ----------"
@@ -86,6 +87,10 @@ class ItemController < ApplicationController
       pp @lines
     end
     @lines
+=======
+    free_shipping_items = Item.where(free_shipping: true).where(price: 0..78.99)
+    render json: free_shipping_items.to_json, status: 200
+>>>>>>> parent of 1504679a (remodeling db)
   end
 
   def change_to_free_shipping
@@ -100,9 +105,16 @@ class ItemController < ApplicationController
   end
 
   def fiscal_data
+    puts 'Chamando a função fiscal_data'
     item_params = params.require(:item).permit(:ml_item_id)
+    item = Item.find(item_params[:ml_item_id])
+    puts 'Recebeu o post com as seguintes informações'
+    pp item_params
+    # Colocar aqui um teste que se não encontrar o anúncio, retornar que não encontrou
     begin
-      resp = ApiMercadoLivre::ItemFiscalData.call(item_params[:ml_item_id])
+      resp = JSON.parse(ApiMercadoLivre::ItemFiscalData.call(item))
+      puts '--------- Response com JSON Parse -----------'
+      pp resp
       render json: resp, status: 200
     rescue RestClient::ExceptionWithResponse => e
       render json: e, status: 400
@@ -110,9 +122,16 @@ class ItemController < ApplicationController
   end
 
   def general_data
+    puts 'Chamando a função general_data'
     item_params = params.require(:item).permit(:ml_item_id)
+    item = Item.find(item_params[:ml_item_id])
+    puts 'Recebeu o post com as seguintes informações'
+    pp item_params
+    # Colocar aqui um teste que se não encontrar o anúncio, retornar que não encontrou
     begin
-      resp = JSON.parse(ApiMercadoLivre::ItemGeneralData.call(item_params[:ml_item_id]))
+      resp = JSON.parse(ApiMercadoLivre::ItemGeneralData.call(item))
+      puts '--------- Response com JSON Parse -----------'
+      pp resp
       render json: resp, status: 200
     rescue RestClient::ExceptionWithResponse => e
       render json: e, status: 400
