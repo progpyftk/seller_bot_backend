@@ -70,8 +70,6 @@ module DbPopulate
         @sku = parsed_item['body']['seller_custom_field']
       end
 
-     
-
       # tratamento flex
       @flex = false
       if parsed_item['body']['shipping']['tags'].blank?

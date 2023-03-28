@@ -54,7 +54,7 @@ class ItemController < ApplicationController
   end
 
   def free_shipping
-<<<<<<< HEAD
+<<<<<<< HEADf
     @items = []
     Seller.all.each do |seller|
       puts "--------- #{seller.nickname} ----------"

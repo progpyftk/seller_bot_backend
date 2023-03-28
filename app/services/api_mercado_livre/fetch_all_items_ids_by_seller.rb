@@ -1,24 +1,18 @@
-require 'rest-client'
-require 'json'
-
 # ML Api
 module ApiMercadoLivre
-  # retornar uma lista com todos os anuncios do vendedors, apenas os ids
-  class AllSellerItemsService < ApplicationService
-    attr_accessor :seller
-
+  # baixa e atualiza todos os items de cada vendedor cadastrado no app
+  class FetchAllItemsIdsBySeller < ApplicationService
     def initialize(seller)
       @seller = seller
       @items = []
     end
 
     def call
-      all_items
+      fetch_all_items_ids
     end
 
     # cria a lista de todos os anuncios do seller - apenas os ids dos anuncios
-    def all_items
-      puts 'autenticando um seller'
+    def fetch_all_items_ids
       ApiMercadoLivre::AuthenticationService.call(@seller)
       auth_header = { 'Authorization' => "Bearer #{@seller.access_token}" }
       url = "https://api.mercadolibre.com/users/#{@seller.ml_seller_id}/items/search?search_type=scan&limit=100"
@@ -27,7 +21,7 @@ module ApiMercadoLivre
       url = "https://api.mercadolibre.com/users/#{@seller.ml_seller_id}/items/search?search_type=scan&scroll_id=#{resp['scroll_id']}&limit=100"
       until resp['results'].empty?
         resp = JSON.parse(RestClient.get(url, auth_header))
-        @items.concat(resp['results'])
+        @items.push(*resp['results'])
       end
       @items
     end

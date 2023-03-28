@@ -2,14 +2,16 @@ require_relative '../services/db_populate/update_items_table_service'
 
 class FulfillmentController < ApplicationController
   def index
-    DbPopulate::UpdateItemsTableService.call
-    items = Item.where(logistic_type: 'fulfillment').where(available_quantity: 0)
+    seller = Seller.find_by(nickname: 'Bluevix')
+    items_data = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller)
+    #items = Item.where(logistic_type: 'fulfillment').where(available_quantity: 0)
+    #@resp = []
+    #items.each do |item|
+    #  hash1 = item.attributes
+    #  hash1['seller_nickname'] = item.seller.nickname
+    #  @resp << hash1
+    #end
     @resp = []
-    items.each do |item|
-      hash1 = item.attributes
-      hash1['seller_nickname'] = item.seller.nickname
-      @resp << hash1
-    end
     render json: @resp, status: 200
   end
 
