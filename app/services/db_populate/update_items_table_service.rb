@@ -10,8 +10,7 @@ module DbPopulate
       Seller.all.each do |seller|
         next unless seller.auth_status == '200'
 
-        items_ids = ApiMercadoLivre::AllSellerItemsService.call(seller)
-        all_items_raw = ApiMercadoLivre::ItemMultigetDataService.call(items_ids, seller)
+        all_items_raw = ApiMercadoLivre::FetchAllItemsIdsBySeller.call(seller)
         all_items_raw.each do |parsed_item|
           if parsed_item.nil?
             # pass
@@ -27,8 +26,6 @@ module DbPopulate
       begin
         item = Item.find(attributes[:ml_item_id])
         item.update(attributes)
-        updates_hash = item.previous_changes
-        DbPopulate::UpdateEventTrackService.call(item, updates_hash) unless item.previous_changes.empty?
       rescue ActiveRecord::RecordNotFound
         seller.items.create(attributes)
         nil
@@ -56,9 +53,6 @@ module DbPopulate
 
     def item_attributes(parsed_item)
       # tratamento necessário do sku
-      if parsed_item['body']['id'] == 'MLB3175019360'
-        pp parsed_item
-      end
       @sku = nil
       if parsed_item['body']['seller_custom_field'].blank?
         parsed_item['body']['attributes'].each do |attribute|
@@ -79,9 +73,12 @@ module DbPopulate
           @flex = true
         end
       end
+
+      @variation = if parsed_item['body']['variations'].present? ? true : false
   
       {
         ml_item_id: parsed_item['body']['id'],
+        variation: @variation
         title: parsed_item['body']['title'],
         permalink: parsed_item['body']['permalink'],
         price: parsed_item['body']['price'],

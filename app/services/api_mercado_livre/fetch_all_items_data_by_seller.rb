@@ -4,9 +4,9 @@ module ApiMercadoLivre
   class FetchAllItemsDataBySeller < ApplicationService
 
     def initialize(seller)
+      ApiMercadoLivre::AuthenticationService.call(@seller)
       @items_ids = ApiMercadoLivre::FetchAllItemsIdsBySeller.call(seller)
       @seller = seller
-      ApiMercadoLivre::AuthenticationService.call(@seller)
     end
 
     def call
@@ -15,12 +15,11 @@ module ApiMercadoLivre
 
     def fetch_items_data
       urls_list = FunctionalServices::BuildUrlList.call(@items_ids[0..100]) # lista das urls que serão chamadas (de 20 em 20)
-      pp urls_list
       @response = []
       urls_list.each do |url|
         @response.push(JSON.parse(RestClient.get(url, auth_header)))
       end
-      pp @response
+      @response
     end
 
     def auth_header
