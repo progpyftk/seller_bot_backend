@@ -4,8 +4,8 @@ module ApiMercadoLivre
   class ItemGeneralData < ApplicationService
 
     def initialize(item)
-      @item = item.ml_item_id
-      @seller = item.seller
+      @item = item
+      @seller = nil
       @response = nil
     end
 
@@ -15,10 +15,9 @@ module ApiMercadoLivre
     end
 
     def search_item
+      @seller = ApiMercadoLivre::FindSellerByItemId.call(@item) 
       url = "https://api.mercadolibre.com/items/#{@item}"
-      @response = (RestClient.get(url, auth_header))
-      puts '--------Response Original --------------'
-      pp @response
+      @response = RestClient.get(url, auth_header)
     end
 
     def auth_header

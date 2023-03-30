@@ -37,10 +37,14 @@ module DbPopulate
 
       item = Item.find(parsed_item['body']['id'])
       parsed_item['body']['variations'].each do |variation|
+        # aqui temos que testar, pois alguns items não possuem a variação nos dados gerais, apenas nos dados fiscais
+        # logo, para aqueles que não tiverem os dados nos dados gerais, fazer uma requisição na APi de dados fiscais 
+        @variation_sku = check_variation_sku(item_id, variation)
         attributes = {
           variation_id: variation['id'],
           sku: variation['seller_custom_field']
         }
+        
         begin
           variation = Variation.find(variation['id'])
           variation.update(attributes)
