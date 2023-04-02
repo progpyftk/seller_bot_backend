@@ -18,7 +18,6 @@ module FunctionalServices
                 if not @attributes.blank?
                     url_final = url_prefix + url_items_ids.join(',') + "&attributes=#{@attributes.join(',')}"
                 else
-                    puts 'Attributes em branco!!'
                     url_final = url_prefix + url_items_ids.join(',')
                 end
                 @urls_list.push(*url_final)

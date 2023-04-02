@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   get 'item/price-events', to: 'item#price_events'
   get 'item/logistic-events', to: 'item#logistic_events'
   get 'item/free-shipping', to: 'item#free_shipping'
+  get 'item/update-database', to: 'item#update_database'
   post 'item/free-shipping', to: 'item#change_to_free_shipping'
   post 'item/fiscal-data', to: 'item#fiscal_data'
   post 'item/general-data', to: 'item#general_data'

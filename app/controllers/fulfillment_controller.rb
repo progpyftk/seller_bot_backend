@@ -4,13 +4,13 @@ class FulfillmentController < ApplicationController
   def index
     seller = Seller.find_by(nickname: 'Bluevix')
     items_data = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller)
-    #items = Item.where(logistic_type: 'fulfillment').where(available_quantity: 0)
-    #@resp = []
-    #items.each do |item|
-    #  hash1 = item.attributes
-    #  hash1['seller_nickname'] = item.seller.nickname
-    #  @resp << hash1
-    #end
+    # items = Item.where(logistic_type: 'fulfillment').where(available_quantity: 0)
+    # @resp = []
+    # items.each do |item|
+    #   hash1 = item.attributes
+    #   hash1['seller_nickname'] = item.seller.nickname
+    #   @resp << hash1
+    # end
     @resp = []
     render json: @resp, status: 200
   end

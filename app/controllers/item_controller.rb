@@ -125,5 +125,15 @@ class ItemController < ApplicationController
     end
   end
 
+  def update_database
+    begin
+      DbPopulate::CreateItemsTableService.call
+      render json: {}, status: 200
+    rescue RestClient::ExceptionWithResponse => e
+      puts e.response
+      render json: {}, status: 400
+    end
+  end
+
 
 end
