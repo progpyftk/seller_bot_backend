@@ -19,6 +19,12 @@ module DbPopulate
     end
 
     def populate_db(parsed_item, seller)
+      # apaga todos os items do seller,
+      puts "apagando os items do seller"
+      Item.delete_all("ml_seller_id = #{seller.ml_seller_id}")
+
+
+
       attributes = item_attributes(parsed_item)
       pp attributes
       
