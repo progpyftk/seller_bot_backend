@@ -1,18 +1,9 @@
-require_relative '../services/db_populate/update_items_table_service'
 
 class FulfillmentController < ApplicationController
   def index
-    seller = Seller.find_by(nickname: 'Bluevix')
-    items_data = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller)
-    # items = Item.where(logistic_type: 'fulfillment').where(available_quantity: 0)
-    # @resp = []
-    # items.each do |item|
-    #   hash1 = item.attributes
-    #   hash1['seller_nickname'] = item.seller.nickname
-    #   @resp << hash1
-    # end
-    @resp = []
-    render json: @resp, status: 200
+    items = Item.includes(:seller).where(logistic_type: 'fulfillment', available_quantity: 0)
+    item_without_stock_at_fullfilment = items.map { |item| item.attributes.merge(seller_nickname: item.seller.nickname) }
+    render json: item_without_stock_at_fullfilment, status: 200
   end
 
   def to_increase_stock
@@ -31,54 +22,49 @@ class FulfillmentController < ApplicationController
   end
 
   def get_sku_qtt(sku)
-    begin
-      sku = Stock.find(sku)
-    rescue ActiveRecord::RecordNotFound => e
-      sku = 'NAO-ENCONTRADO'
+    stock = Stock.find_by(sku: sku)
+    if stock.nil?
+      puts "Stock not found for SKU: #{sku}"
       return 0
     end
-    sku.quantity
+    stock.quantity
   end
 
   def flex
-    @linhas_tabela = []
+    # atualiza a BD de estoques com o Bling
+    ApiBling::StockService.call
+  
     items_full = Item.where(logistic_type: 'fulfillment')
-    items_full.each do |item|
-      flex_status = ApiMercadoLivre::FlexStatusCheck.call(item)
-      # para cada anuncio do full, verifica se tem variacoes
+    @linhas_tabela = items_full.flat_map do |item|
       if item.variations.present?
-        # para cada uma das variações, verifica seu SKU
-        item.variations.each do |item_variation|
-          if item_variation.sku.blank?
-            puts ' ---- possui variação, MAS NÃO POSSUI SKU cadastrado na variação ----'
-            puts item.ml_item_id
-            puts item.sku
-            puts get_sku_qtt(item.sku)
-            puts '------------------------------------------------------------------'
-            @linhas_tabela << {ml_item_id: item.ml_item_id,seller_nickname: item.seller.nickname, link: item.permalink, sku: item.sku, quantity: get_sku_qtt(item.sku), flex: flex_status }
-            # aqui temos que pegar o sku geral do anúncio, como se não tivesse variação
-          else
-            puts '------ o anúncio possui variação e tem SKU cadastrado na variação -----'
-            puts "ml_item_id: #{item_variation.item_id}"
-            puts "sku: #{item_variation.sku}"
-            qtt = get_sku_qtt(item_variation.sku)
-            puts "quantidade do sku: #{qtt}"
-            puts '------------------------------------------------------------------'
-            @linhas_tabela << {ml_item_id: item_variation.item_id, seller_nickname: item.seller.nickname, link: item.permalink, sku: item_variation.sku, quantity: get_sku_qtt(item_variation.sku), flex: flex_status }
-
-            # montar o dict para colocar no array
-          end
+        item.variations.each_with_object([]) do |item_variation, result|
+          next unless item_variation.sku.present?
+  
+          result << {
+            ml_item_id: item_variation.item_id,
+            variation_id: item_variation.variation_id,
+            variation: true,
+            seller_nickname: item.seller.nickname,
+            link: item.permalink,
+            sku: item_variation.sku,
+            quantity: get_sku_qtt(item_variation.sku),
+            flex: item.flex
+          }
         end
-      # caso NÃO tenha variação
       else
-        # vamos utilizar o sku do proprio anuncio
-        puts '----  o anúncio NÃO tem variação, vamos usar o sku geral ----'
-        puts item.sku
-        puts get_sku_qtt(item.sku)
-        puts '------------------------------------------------------------------'
-        @linhas_tabela << {ml_item_id: item.ml_item_id, seller_nickname: item.seller.nickname, link: item.permalink, sku: item.sku, quantity: get_sku_qtt(item.sku), flex: flex_status }
+        {
+          ml_item_id: item.ml_item_id,
+          variation_id: nil,
+          variation: false,
+          seller_nickname: item.seller.nickname,
+          link: item.permalink,
+          sku: item.sku,
+          quantity: get_sku_qtt(item.sku),
+          flex: item.flex
+        }
       end
     end
+  
     render json: @linhas_tabela, status: 200
   end
 

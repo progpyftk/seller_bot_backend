@@ -4,8 +4,8 @@
 
 module ApiBling
   class StockService < ApplicationService
-    def initialize(apikey)
-      @apikey = apikey
+    def initialize
+      @apikey = ENV['BLING_API_KEY']
     end
 
     def call

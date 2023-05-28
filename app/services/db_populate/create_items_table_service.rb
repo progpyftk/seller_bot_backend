@@ -21,12 +21,7 @@ module DbPopulate
     end
 
     def populate_db(parsed_item, seller)
-
-      # PAREI AQUI, PRECISO CRIAR AS VARIAÇÕES NA BASE DE DADOS, PORÉM APENAS DEPOIS QUE O ANÚNCIO FOR CRIADO.
-      # OU SEJA, TENHO QUE TRAZER O fetch_variation aqui pra cima, que receberá como parametro o id do item
-
       attributes = item_attributes(parsed_item)
-
       begin
         seller.items.create(attributes)
         create_variations(parsed_item)
