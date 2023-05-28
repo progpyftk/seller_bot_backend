@@ -16,7 +16,7 @@ module ApiMercadoLivre
 
     def search_item
       @seller = ApiMercadoLivre::FindSellerByItemId.call(@item) 
-      url = "https://api.mercadolibre.com/items/#{@item}"
+      url = "https://api.mercadolibre.com/items/#{@item}?include_attributes=all"
       @response = RestClient.get(url, auth_header)
     end
 

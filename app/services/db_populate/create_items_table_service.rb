@@ -9,6 +9,9 @@ module DbPopulate
 
     def all_sellers
       Seller.all.each do |seller|
+        # deleta todos os items da base de dados desse seller, tb é preciso destruir as variações
+        items.variations.destroy_all
+        seller.items.destroy_all
         if seller.auth_status == '200'
           all_items_raw = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller)
           all_items_raw.each do |parsed_item|
@@ -19,24 +22,20 @@ module DbPopulate
     end
 
     def populate_db(parsed_item, seller)
-      # apaga todos os items do seller,
-      puts "apagando os items do seller"
-      Item.delete_all("ml_seller_id = #{seller.ml_seller_id}")
 
-
+      # PAREI AQUI, PRECISO CRIAR AS VARIAÇÕES NA BASE DE DADOS, PORÉM APENAS DEPOIS QUE O ANÚNCIO FOR CRIADO.
+      # OU SEJA, TENHO QUE TRAZER O fetch_variation aqui pra cima, que receberá como parametro o id do item
 
       attributes = item_attributes(parsed_item)
-      pp attributes
-      
+
       begin
-        item = Item.find(attributes[:ml_item_id])
-        item.update(attributes)
-      rescue ActiveRecord::RecordNotFound
         seller.items.create(attributes)
-        nil
+        create_variations(parsed_item)
+      rescue ActiveRecord::RecordNotUnique, PG::UniqueViolation => e
+        # Error handling for unique constraint violation
+        puts e.message
       end
     end
-
 
     def fetch_sku(parsed_item)
       sku = nil
@@ -64,6 +63,23 @@ module DbPopulate
         end
       end
       flex
+    end
+
+    def create_variations(parsed_item)
+      item = Item.find_by(ml_item_id: parsed_item['body']['id'])
+      if item.variation
+        parsed_item['body']['variations'].each do |variation|
+          sku_dict =  variation['attributes'].find { |dict| dict["id"] == "SELLER_SKU" }
+          begin
+            puts 'criando variação'
+            puts "varaition_id: #{variation['id']}   sku: #{sku_dict['value_name']}"
+            item.variations.create(variation_id: variation['id'], sku: sku_dict['value_name'])
+          rescue ActiveRecord::RecordNotUnique, PG::UniqueViolation => e
+            # Error handling for unique constraint violation
+            puts e.message
+          end
+        end
+      end
     end
 
     def item_attributes(parsed_item)

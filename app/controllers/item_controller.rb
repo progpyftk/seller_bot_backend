@@ -125,8 +125,10 @@ class ItemController < ApplicationController
     end
   end
 
+  # atualização da base de dados de forma geral
   def update_database
     begin
+      puts 'iniciando a atualização completa da base de dados'
       DbPopulate::CreateItemsTableService.call
       render json: {}, status: 200
     rescue RestClient::ExceptionWithResponse => e

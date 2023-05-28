@@ -1,7 +1,7 @@
 # ML Api
 module DbPopulate
     # faz o update da base de dado de acordo com a API do ML
-    class CreateItemsTableService < ApplicationService
+    class CreateVariationsTableService < ApplicationService
       def call
         all_sellers
       end
