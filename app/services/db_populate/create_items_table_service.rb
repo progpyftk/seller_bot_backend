@@ -9,8 +9,7 @@ module DbPopulate
 
     def all_sellers
       Seller.all.each do |seller|
-        # deleta todos os items da base de dados desse seller, tb é preciso destruir as variações
-        items.variations.destroy_all
+        # deleta todos os items da base de dados desse seller
         seller.items.destroy_all
         if seller.auth_status == '200'
           all_items_raw = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller)
@@ -67,7 +66,8 @@ module DbPopulate
 
     def create_variations(parsed_item)
       item = Item.find_by(ml_item_id: parsed_item['body']['id'])
-      if item.variation
+      if item.variation  
+        item.variations.destroy_all
         parsed_item['body']['variations'].each do |variation|
           sku_dict =  variation['attributes'].find { |dict| dict["id"] == "SELLER_SKU" }
           begin

@@ -4,5 +4,5 @@ class Item < ApplicationRecord
   belongs_to :seller
   has_many :logistic_events
   has_many :price_events
-  has_many :variations
+  has_many :variations, dependent: :destroy
 end

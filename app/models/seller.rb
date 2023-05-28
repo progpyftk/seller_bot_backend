@@ -1,4 +1,4 @@
 class Seller < ApplicationRecord
   self.primary_key = 'ml_seller_id'
-  has_many :items
+  has_many :items, dependent: :destroy
 end
