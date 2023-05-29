@@ -31,9 +31,7 @@ class FulfillmentController < ApplicationController
   end
 
   def flex
-    # atualiza a BD de estoques com o Bling
     ApiBling::StockService.call
-  
     items_full = Item.where(logistic_type: 'fulfillment')
     @linhas_tabela = items_full.flat_map do |item|
       if item.variations.present?
@@ -64,16 +62,13 @@ class FulfillmentController < ApplicationController
         }
       end
     end
-  
     render json: @linhas_tabela, status: 200
   end
 
   def flex_turn_off
-    puts 'RECEBENDO POST DO AXIOS CARALHO'
     item_params = params.require(:item).permit(:ml_item_id)
     item = Item.find(item_params[:ml_item_id])
     resposta = ApiMercadoLivre::FlexTurnOff.call(item)
-    pp resposta
     render json: resposta, status: 200
   end
 

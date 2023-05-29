@@ -14,78 +14,15 @@ class ItemController < ApplicationController
     end
   end
 
-  def create
-    seller_params = params.require(:seller).permit(:nickname, :code, :ml_seller_id)
-    begin
-      resp = Seller.create(seller_params)
-      render json: resp, status: 200
-    rescue ActiveRecord::RecordNotFound => e
-      render json: e, status: 400
-    rescue ActiveRecord::ActiveRecordError => e
-      render json: e, status: 400
-    rescue StandardError => e
-      render json: e, status: 400
-    end
-  end
-
   def retrieve_item
     resp = ApiMercadoLivre::ItemDataService.call(ml_item_id, seller)
     render json: resp, status: 200
   end
 
-  def price_events
-    @resp = []
-    PriceEvent.all.each do |event|
-      hash1 = event.attributes
-      hash1['permalink'] = event.item.permalink
-      @resp << hash1
-    end
-    render json: @resp, status: 200
-  end
-
-  def logistic_events
-    @resp = []
-    LogisticEvent.all.each do |event|
-      hash1 = event.attributes
-      hash1['permalink'] = event.item.permalink
-      @resp << hash1
-    end
-    render json: @resp, status: 200
-  end
-
   def free_shipping
-    @items = []
-    Seller.all.each do |seller|
-      puts "--------- #{seller.nickname} ----------"
-      # aqui deveria filtrar também na API os com frete grátis, porém não consegui.
-      items_list = ApiMercadoLivre::ActiveItems.call(seller)
-      puts "----- Active Items: #{items_list.length}"
-      attributes = ['id', 'price', 'title', 'shipping', 'permalink', 'seller_id']
-      url_list = FunctionalServices::BuildUrlList.call(items_list, attributes)
-      @items.push(*ApiMercadoLivre::ReadApiFromUrl.call(seller, url_list))
-    end
-    @items.delete_if { |h| h['body']['price'] > 79}
-    @items.delete_if { |h| h['body']['shipping']['free_shipping'] == false}
-    table = table_lines(@items)
-    render json: table , status: 200
-  end
-
-  def table_lines(items)
-    @lines = []
-    items.each do |item|
-      hash = {
-        ml_item_id: item['body']['id'],
-        title: item['body']['title'],
-        seller: item['body']['seller_id'],
-        price: item['body']['price'],
-        link: item['body']['permalink'],
-      }
-      @lines.push(hash)
-      pp @lines
-    end
-    @lines
-    free_shipping_items = Item.where(free_shipping: true).where(price: 0..78.99)
-    render json: free_shipping_items.to_json, status: 200
+    items = Item.includes(:seller).where(free_shipping: true, price: 0..78.99)
+    free_shipping_items = items.map { |item| item.attributes.merge(seller_nickname: item.seller.nickname) }
+    render json: free_shipping_items , status: 200
   end
 
   def change_to_free_shipping
