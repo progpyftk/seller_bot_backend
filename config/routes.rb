@@ -4,7 +4,6 @@ Rails.application.routes.draw do
   get 'fulfillment/flex', to: 'fulfillment#flex'
   post 'fulfillment/flex', to: 'fulfillment#flex_turn_off'
   post 'fulfillment/flex', to: 'fulfillment#flex_turn_on'
-
   get 'seller/index'
   get 'seller/active-items', to: 'seller#active_items'
   get 'seller/auth-all', to: 'seller#auth_all'
@@ -20,5 +19,6 @@ Rails.application.routes.draw do
   post 'item/free-shipping', to: 'item#change_to_free_shipping'
   post 'item/fiscal-data', to: 'item#fiscal_data'
   post 'item/general-data', to: 'item#general_data'
+  post 'item/webhook', to: 'item#handle'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

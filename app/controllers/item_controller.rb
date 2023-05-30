@@ -74,5 +74,9 @@ class ItemController < ApplicationController
     end
   end
 
+  def handle
+    puts 'estou aqui porrra!!'
+  end
+
 
 end
