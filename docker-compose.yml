@@ -18,7 +18,7 @@ services:
   # Remove the database service, as we will configure AWS RDS for PostgreSQL separately
 
   pgadmin:
-    container_name: pgadmin4_container
+    container_name: pgadmin4_cgithub.com:w3villa-sujay/seller_bot_backend.gitontainer
     image: dpage/pgadmin4
     restart: always
     environment:
