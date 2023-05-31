@@ -8,6 +8,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    command: bundle exec sidekiq
     depends_on:     
       - database
     ports: 

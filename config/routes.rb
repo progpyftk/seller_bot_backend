@@ -22,7 +22,7 @@ Rails.application.routes.draw do
   post 'item/free-shipping', to: 'item#change_to_free_shipping'
   post 'item/fiscal-data', to: 'item#fiscal_data'
   post 'item/general-data', to: 'item#general_data'
-  post 'item/webhook', to: 'item#handle'
+  post 'item/webhook', to: 'webhook#handle'
   mount Sidekiq::Web => '/sidekiq'
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html

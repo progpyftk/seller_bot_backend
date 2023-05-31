@@ -20,7 +20,6 @@ class ItemController < ApplicationController
   end
 
   def free_shipping
-    HardJob.perform_async('bob', 5)
     items = Item.includes(:seller).where(free_shipping: true, price: 0..78.99)
     free_shipping_items = items.map { |item| item.attributes.merge(seller_nickname: item.seller.nickname) }
     render json: free_shipping_items , status: 200
@@ -74,10 +73,4 @@ class ItemController < ApplicationController
       render json: {}, status: 400
     end
   end
-
-  def handle
-    puts 'estou aqui porrra!!'
-  end
-
-
 end
