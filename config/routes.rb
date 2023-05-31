@@ -1,3 +1,6 @@
+require 'sidekiq/web'
+
+
 Rails.application.routes.draw do
   get 'fulfillment/index'
   get 'fulfillment/to-increase-stock', to: 'fulfillment#to_increase_stock'
@@ -20,5 +23,7 @@ Rails.application.routes.draw do
   post 'item/fiscal-data', to: 'item#fiscal_data'
   post 'item/general-data', to: 'item#general_data'
   post 'item/webhook', to: 'item#handle'
+  mount Sidekiq::Web => '/sidekiq'
+
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

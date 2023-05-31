@@ -19,6 +19,7 @@ services:
     env_file: .env
     environment:
       RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/1
 
   database:
     container_name: database_seller_bot
@@ -36,9 +37,26 @@ services:
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
       - "5050:80"
-      
+
+  redis:
+    image: redis:latest
+    command: redis-server
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+
+  sidekiq:
+    depends_on:
+      - database
+      - redis
+    build: .
+    command: bundle exec sidekiq
+    volumes:
+      - .:/project
 
 volumes:
   gem_cache:
   db_data:
   node_modules:
+  redis:

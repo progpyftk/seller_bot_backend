@@ -80,8 +80,8 @@ Rails.application.configure do
   config.active_record.logger = nil
 
   # habilitar ngrok e localtunnel
-  config.hosts << /[a-z0-9]+\.ngrok\.io/
-  config.hosts << /[a-z0-9-.]+\.ngrok\.io/
-  config.hosts << /[a-z0-9-.]+\.loca.lt/
+  config.hosts << /[-a-zA-Z0-9._ ]+\.ngrok\.io/
+  config.hosts << /[-a-zA-Z0-9._ ]+\.ngrok\.io/
+  config.hosts << /[-a-zA-Z0-9._ ]+\.loca.lt/
 
 end
