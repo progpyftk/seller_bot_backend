@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Program Files\Kompose\kompose.exe convert
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: app
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Program Files\Kompose\kompose.exe convert
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/seller-bot-backend-default: "true"
+        io.kompose.service: app
+    spec:
+      containers:
+        - env:
+          - name: DATABASE_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: DATABASE_HOST
+                name: env
+          - name: DATABASE_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: DATABASE_PORT
+                name: env
+          - name: DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: DATABASE_NAME
+                name: env
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                key: DATABASE_PASSWORD
+                name: env
+          - name: DATABASE_USER
+            valueFrom:
+              configMapKeyRef:
+                key: DATABASE_USER
+                name: env
+          - name: ML_API_CLIENT_ID
+            valueFrom:
+              configMapKeyRef:
+                key: ML_API_CLIENT_ID
+                name: env
+          - name: ML_API_CLIENT_SECRET
+            valueFrom:
+              configMapKeyRef:
+                key: ML_API_CLIENT_SECRET
+                name: env
+          - name: RAILS_ENV
+            value: development
+          - name: REDIS_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: REDIS_HOST
+                name: env
+          - name: REDIS_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: REDIS_PORT
+                name: env
+          image: losimonassi/seller_bot_backend:latest
+          command: [ "echo", "SUCCESS" ]
+          name: app
+          ports:
+            - containerPort: 3000
+          resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: newregistrykey
+status: {}

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Program Files\Kompose\kompose.exe convert
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: sidekiq
+  name: sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: sidekiq
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Program Files\Kompose\kompose.exe convert
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/seller-bot-backend-default: "true"
+        io.kompose.service: sidekiq
+    spec:
+      containers:
+        - command:
+            - ./entrypoints/sidekiq-entrypoint.sh
+          env:
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DATABASE_HOST
+                  name: env
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: DATABASE_PORT
+                  name: env
+            - name: ML_API_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: ML_API_CLIENT_ID
+                  name: env
+            - name: ML_API_CLIENT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  key: ML_API_CLIENT_SECRET
+                  name: env
+            - name: RAILS_ENV
+              value: development
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_HOST
+                  name: env
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_PORT
+                  name: env
+          image: losimonassi/seller_bot_backend:latest
+          name: sidekiq
+          resources: {}
+      restartPolicy: Always
+status: {}
