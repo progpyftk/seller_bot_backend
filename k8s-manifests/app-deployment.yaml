@@ -74,7 +74,6 @@ spec:
                 key: REDIS_PORT
                 name: env
           image: losimonassi/seller_bot_backend:latest
-          command: [ "echo", "SUCCESS" ]
           name: app
           ports:
             - containerPort: 3000
