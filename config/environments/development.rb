@@ -83,5 +83,7 @@ Rails.application.configure do
   config.hosts << /[a-z0-9-.]+\ngrok\.io/
   config.hosts << /[a-z0-9-.]+\.io/
   config.hosts << /[a-z0-9-.]+\.loca.lt/
+  config.hosts << "sellerbot.com.br"
+  config.hosts << "api.sellerbot.com.br"
 
 end
