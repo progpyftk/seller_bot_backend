@@ -5,9 +5,9 @@ data:
   DATABASE_NAME: sellerbot_database
   DATABASE_PASSWORD: "220288"
   DATABASE_USER: lorenzo
-  POSTGRES_DB: postgres
-  POSTGRES_PASSWORD: postgres
-  POSTGRES_USER: postgres
+  POSTGRES_DB: sellerbot_database
+  POSTGRES_PASSWORD: "220288"
+  POSTGRES_USER: lorenzo
   ML_API_CLIENT_ID: "4578390653814990"
   ML_API_CLIENT_SECRET: uVYvpVTF5ppNVeioNM2ACwNl0amZqkxW
   REDIS_HOST: redis
