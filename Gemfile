@@ -33,6 +33,9 @@ gem 'rest-client'
 gem 'rack-cors'
 gem 'typhoeus'
 gem 'faraday'
+gem "devise"
+gem 'jsonapi-serializer'
+
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
