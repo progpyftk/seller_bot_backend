@@ -1,6 +1,7 @@
 require_relative '../services/api_mercado_livre/authentication_service'
 
 class SellerController < ApplicationController
+  before_action :authenticate_user!
   def index
     IncrementCounter.perform_async()
     Seller.all.each do |seller|
