@@ -31,11 +31,16 @@ class SellerController < ApplicationController
   end
 
   def create
+    puts '--- seller_controller: create()'
+    puts "--- current_user: #{current_user}"
     seller_params = params.require(:seller).permit(:nickname, :code, :ml_seller_id)
-    # puts '***** Seller Params ******'
-    # pp seller_params
+    current_user.sellers.create(seller_params)
+
     begin
-      resp = Seller.create(seller_params)
+      puts '--- começando a criação ---'
+      resp = current_user.sellers.create(seller_params)
+      puts "--- response of creating seller ---"
+      puts resp
       render json: resp, status: 200
     rescue ActiveRecord::RecordNotFound => e
       # puts 'ActiveRecord::RecordNotFound => e'
@@ -49,19 +54,21 @@ class SellerController < ApplicationController
   end
 
   def edit
+    puts '--- seller_controller  edit() ---'
     seller_params = params.require(:seller).permit(:nickname, :code,:ml_seller_id, :access_token,:refresh_token)
     begin
       seller = Seller.find(seller_params[:ml_seller_id])
       resp = seller.update(seller_params)
       render json: resp, status: 200
     rescue ActiveRecord::RecordNotFound
-      # puts 'ActiveRecord::RecordNotFound - nao encontrou o seller'
+      puts 'ActiveRecord::RecordNotFound - nao encontrou o seller'
     rescue ActiveRecord::ActiveRecordError
-      # puts 'ActiveRecord::ActiveRecordError'
+      puts 'ActiveRecord::ActiveRecordError'
     end
   end
 
   def delete
+    puts '--- seller_controller  delete() ---'
     seller_params = params.require(:seller).permit(:ml_seller_id)
     begin
       resp = Seller.destroy(seller_params[:ml_seller_id])

@@ -66,6 +66,8 @@ ActiveRecord::Schema.define(version: 2023_07_17_190835) do
     t.string "auth_status"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_sellers_on_user_id"
   end
 
   create_table "stocks", force: :cascade do |t|

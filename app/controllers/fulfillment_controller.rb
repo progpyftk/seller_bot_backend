@@ -1,5 +1,6 @@
 
 class FulfillmentController < ApplicationController
+  before_action :authenticate_user!
   def index
     items = Item.includes(:seller).where(logistic_type: 'fulfillment', available_quantity: 0)
     item_without_stock_at_fullfilment = items.map { |item| item.attributes.merge(seller_nickname: item.seller.nickname) }

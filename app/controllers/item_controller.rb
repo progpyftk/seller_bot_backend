@@ -1,6 +1,7 @@
 require_relative '../services/api_mercado_livre/authentication_service'
 
 class ItemController < ApplicationController
+  before_action :authenticate_user!
   def add_stock
     DbPopulate::UpdateItemsTableService.call
     item_params = params.require(:item).permit(:quantity, :ml_item_id)

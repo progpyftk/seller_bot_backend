@@ -64,11 +64,15 @@ module DbPopulate
       if item.variation  
         item.variations.destroy_all
         parsed_item['body']['variations'].each do |variation|
-          sku_dict =  variation['attributes'].find { |dict| dict["id"] == "SELLER_SKU" }
+          sku_dict = variation['attributes'].find { |dict| dict["id"] == "SELLER_SKU" }
           begin
             puts 'criando variação'
-            puts "varaition_id: #{variation['id']}   sku: #{sku_dict['value_name']}"
-            item.variations.create(variation_id: variation['id'], sku: sku_dict['value_name'])
+            if sku_dict.nil?
+              item.variations.create(variation_id: variation['id'], sku: nil )
+            else
+              puts "varaition_id: #{variation['id']}   sku: #{sku_dict['value_name']}"
+              item.variations.create(variation_id: variation['id'], sku: sku_dict['value_name'])
+            end
           rescue ActiveRecord::RecordNotUnique, PG::UniqueViolation => e
             # Error handling for unique constraint violation
             puts e.message
