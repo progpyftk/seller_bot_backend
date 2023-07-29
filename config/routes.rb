@@ -2,7 +2,7 @@ require 'sidekiq/web'
 
 
 Rails.application.routes.draw do
-  get 'fulfillment/index'
+  get 'fulfillment/index', to: 'fulfillment#index'
   get 'fulfillment/to-increase-stock', to: 'fulfillment#to_increase_stock'
   get 'fulfillment/flex', to: 'fulfillment#flex'
   post 'fulfillment/flex', to: 'fulfillment#flex_turn_off'
@@ -22,7 +22,8 @@ Rails.application.routes.draw do
   post 'item/free-shipping', to: 'item#change_to_free_shipping'
   post 'item/fiscal-data', to: 'item#fiscal_data'
   post 'item/general-data', to: 'item#general_data'
-  post 'item/webhook', to: 'webhook#handle'
+  post 'webhook/handle', to: 'webhook#handle'
+  get 'webhook/updatedb', to: 'webhook#updatedb'
   mount Sidekiq::Web => '/sidekiq'
 
   devise_for :users,

@@ -8,7 +8,9 @@ module FunctionalServices
         end
         
         def call
+            puts "*** Iniciando: FunctionalServices::BuildUrlList *** "
             build_url_list
+            puts "*** Finalizando: FunctionalServices::BuildUrlList *** "
             @urls_list
         end
 

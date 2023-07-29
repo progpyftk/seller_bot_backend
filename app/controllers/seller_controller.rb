@@ -6,8 +6,8 @@ class SellerController < ApplicationController
   def index
     puts '---- current user ----'
     puts current_user.email
-    puts current_user.id
-
+    puts 'headers recebidos'
+    pp request.headers
     IncrementCounter.perform_async()
     Seller.all.each do |seller|
       puts 'autenticando todos os sellers no controller seller_controller'

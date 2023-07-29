@@ -50,8 +50,10 @@ services:
     environment:
       RAILS_ENV: "development"
       REDIS_URL: "redis://redis:6379/12"
+    env_file: .env
     depends_on:
-      - redis
+      - redis    
+      - database
     entrypoint: ./entrypoints/sidekiq-entrypoint.sh
 
 volumes:

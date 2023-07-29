@@ -4,15 +4,19 @@ module DbPopulate
   class CreateItemsTableService < ApplicationService
 
     def call
+      puts '*** Iniciando DbPopulate::CreateItemsTableService ***'
       all_sellers
     end
 
     def all_sellers
       Seller.all.each do |seller|
+        puts "Seller: #{seller.nickname}"
         # deleta todos os items da base de dados desse seller
         seller.items.destroy_all
         if seller.auth_status == '200'
           all_items_raw = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller)
+          puts '** Tamanho do all_items_raw ***'
+          puts all_items_raw.length
           all_items_raw.each do |parsed_item|
             populate_db(parsed_item, seller)
           end

@@ -38,6 +38,21 @@ spec:
                 configMapKeyRef:
                   key: DATABASE_PORT
                   name: env
+            - name: DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DATABASE_NAME
+                  name: env
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: DATABASE_PASSWORD
+                  name: env
+            - name: DATABASE_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DATABASE_USER
+                  name: env
             - name: ML_API_CLIENT_ID
               valueFrom:
                 configMapKeyRef:
@@ -61,7 +76,14 @@ spec:
                   key: REDIS_PORT
                   name: env
           image: losimonassi/seller_bot_backend:latest
+
           name: sidekiq
-          resources: {}
+          resources:
+            requests:
+              cpu: "200m"     # Request 100 milli CPUs (0.1 CPU cores)
+              memory: "512Mi" # Request 256 Mebibytes of memory
+            limits:
+              cpu: "400m"     # Limit container to 200 milli CPUs (0.2 CPU cores)
+              memory: "1024Mi" # Limit container to 512 Mebibytes of memory
       restartPolicy: Always
 status: {}

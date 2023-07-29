@@ -9,4 +9,9 @@ class WebhookController < ApplicationController
         # Return HTTP 200 status code - quem irá 
         head :ok
     end
+
+    def updatedb
+        status = UpdatedbJob.perform_async
+        render json: {}, status: status
+    end
 end

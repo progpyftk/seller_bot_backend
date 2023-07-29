@@ -12,6 +12,8 @@ data:
   ML_API_CLIENT_SECRET: uVYvpVTF5ppNVeioNM2ACwNl0amZqkxW
   REDIS_HOST: redis
   REDIS_PORT: "6379"
+  DEVISE_JWT_SECRET_KEY: d9a06b44bd255ff0bcf4b1b7025cf5a105c0905c984963fed88a1c4699404ea8f45ba80441e9537acfc207600e72265f23ae20a5a40e82dcafd0f25f131a8873
+
 kind: ConfigMap
 metadata:
   creationTimestamp: null

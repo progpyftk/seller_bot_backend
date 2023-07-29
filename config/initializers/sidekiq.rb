@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 Sidekiq.configure_server do |config|
-    config.redis = {
+
+  config.redis = {
       host: ENV['REDIS_HOST'],
       port: ENV['REDIS_PORT'] || '6379'
     }

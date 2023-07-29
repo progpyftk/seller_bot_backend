@@ -10,13 +10,20 @@ module ApiMercadoLivre
     end
 
     def call
+      puts "*** Iniciando: ApiMercadoLivre::FetchAllItemsDataBySeller *** "
+      puts "Seller: #{@seller.nickname}"
       fetch_items_data
+      puts " *** Iniciando: ApiMercadoLivre::FetchAllItemsDataBySeller *** "
+      puts " Resposta final com todos os dados de todos os anúncios "
+      @response
     end
 
     def fetch_items_data
       urls_list = FunctionalServices::BuildUrlList.call(@items_ids) # lista das urls que serão chamadas (de 20 em 20)
       @response = []
+      puts ' -- urls sendo chamadas ---'
       urls_list.each do |url|
+        puts url
         @response.push(*JSON.parse(RestClient.get(url, auth_header)))
       end
       @response
