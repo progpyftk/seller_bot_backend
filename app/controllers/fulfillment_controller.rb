@@ -1,54 +1,37 @@
 
 class FulfillmentController < ApplicationController
   before_action :authenticate_user!
-  def index
-    @items = []
-    current_user.sellers.each do |seller|
-      seller_items_ids = []
-      seller_items_data = []
-      puts seller.nickname
-      auth_header = { 'Authorization' => "Bearer #{seller.access_token}" }
-      url = "https://api.mercadolibre.com/users/#{seller.ml_seller_id}/items/search?logistic_type=fulfillment&labels=without_stock"
-      resp = JSON.parse(RestClient.get(url, auth_header))
-      # esse resp nos trás apenas os items_ids, vamos ter que fazer um multget para pega-los
-      # pode ser que não tenha nenhum anuncio sem estoque no full
-      pp resp['results']
-      puts resp['results'].blank?
-      puts resp['results']
-      if resp['results'].blank?
-        puts 'Parabéns, não há anúncios sem estoque no full!'
-        seller_items_ids = []
-      else
-        puts 'Há anúncios no full sem estoque'
-        seller_items_ids = resp['results']
-        pp seller_items_ids
-        # tambem temos que verificar se TEM UM SCROLL_ID
-        if resp['scroll_id'].blank?
-           # entao temos menos 20 resultados e não é necessário scroll_id
-          puts 'não precisa de scroll_id'
-        else
-          puts 'precisa de scroll_id'
-          url = "https://api.mercadolibre.com/users/#{@seller.ml_seller_id}/items/search?logistic_type=fulfillment&labels=without_stock&search_type=scan&scroll_id=#{resp['scroll_id']}&limit=100"
-          until resp['results'].blank?
-            resp = JSON.parse(RestClient.get(url, auth_header))
-            seller_items_ids.push(*resp['results'])
-          end
-        end
-        
-      end
-      pp seller_items_ids
-      # aqui já vamos pegar os dados de cada anúncio do seller
-      seller_items_data = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller, seller_items_ids)
-      pp seller_items_data
-      @items.push(seller_items_data)
-    end
-    # até aqui, está tudo funcionando, agora é só tratar esse resultado e mandar pro front!
-    pp @items
+  
+# Controller action to fetch items from MercadoLibre API for sellers associated with the current user.
+def index
+  @items = []
 
-    #items = Item.includes(:seller).where(logistic_type: 'fulfillment', available_quantity: 0)
-    #item_without_stock_at_fullfilment = items.map { |item| item.attributes.merge(seller_nickname: item.seller.nickname) }
-    render json: @items, status: 200
+  # Retrieve sellers associated with the current user, preloading their associated items.
+  current_user.sellers.each do |seller|
+    puts seller.nickname
+    auth_header = { 'Authorization' => "Bearer #{seller.access_token}" }
+
+    # Build the MercadoLibre API URL for fetching seller items without stock in fulfillment.
+    url = "https://api.mercadolibre.com/users/#{seller.ml_seller_id}/items/search?logistic_type=fulfillment&labels=without_stock"
+
+    # Fetch the API response for the URL with the given authorization header.
+    resp = fetch_api_response(url, auth_header)
+    pp resp['results']
+    # Skip further processing if there are no items for the seller.
+    next if resp['results'].blank?
+
+    # If there are items, then fetch all seller items data using the API response - resp['results'] - the ml_items_ids.
+    seller_items_data = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller, resp['results'])
+
+    # Parse and push the item data for each seller item to the @items array.
+    parsed_seller_items = parse_and_push_items(seller, seller_items_data)
+    @items.push(*parsed_seller_items)
   end
+    puts 'pp @items'
+
+  # Render the @items array as JSON for the response with status 200.
+  render json: @items, status: 200
+end
 
   def to_increase_stock
     items_without_stock = Item.where.not(logistic_type: 'fulfillment').where(available_quantity: 0)
@@ -116,42 +99,40 @@ class FulfillmentController < ApplicationController
     render json: resposta, status: 200
   end
 
-  def to_increase_stock_api
-    puts ' ---- testando funções de leitura da API -----'
-    # preciso saber quais são os available_filters
-    # filtrar na API do mercadolivre todos anúncios que estão no Full e sem estoque
-    current_user.sellers.each do |seller|
-      #uth_header = { 'Authorization' => "Bearer #{seller.access_token}" }
-      #url = "https://api.mercadolibre.com/users/#{seller.ml_seller_id}/items/search?logistic_type=fulfillment$labels=without_stock"
-      #resp = JSON.parse(RestClient.get(url, auth_header))
-      #Rails.logger.info (pp resp)
-      #Rails.logger.info (puts)
-      #pp resp
-      #url = "https://api.mercadolibre.com/sites/MLB/search?seller_id=#{seller.ml_seller_id}&logistic_type=fulfillment"
-      #resp = JSON.parse(RestClient.get(url))
-      #Rails.logger.info (pp resp)
-      #Rails.logger.info (puts)
-      #pp resp
-      # anuncios com FULL + FLEX
-      auth_header = { 'Authorization' => "Bearer #{seller.access_token}" }
-      
-      # separamos os anuncios que estao com flex ligado
-      url = "https://api.mercadolibre.com/users/#{seller.ml_seller_id}/items/search?logistic_type=fulfillment&shipping_tags=self_service_in"
-      resp = JSON.parse(RestClient.get(url, auth_header))
-      Rails.logger.info (pp resp)
-      Rails.logger.info (puts)
-      pp resp
-      # anuncios que estao com flex desligado
-      url = "https://api.mercadolibre.com/users/#{seller.ml_seller_id}/items/search?logistic_type=fulfillment&shipping_tags=self_service_out"
-      resp = JSON.parse(RestClient.get(url, auth_header))
-      Rails.logger.info (pp resp)
-      Rails.logger.info (puts)
-      pp resp      
-      # analisamos cada um desses anuncios para ver quais tem variação e quais nao tem
-      # analiamos o sku de acordo com o sku do erp
-    end
-    render json: [], status: 200
+  private
+
+  # Fetch the API response for the given URL and authorization header.
+  # Handle any API request errors, and return an empty hash in case of errors.
+  def fetch_api_response(url, auth_header)
+    JSON.parse(RestClient.get(url, auth_header))
+  rescue StandardError => e
+    puts "Error fetching data from API: #{e.message}"
+    {}
   end
+  
+  # Parse and push the item data for each seller item to the @items array.
+  def parse_and_push_items(seller, seller_items_data)
+    @parsed_items = []
+    seller_items_data.each do |seller_item|
+      # Create a parsed item hash for each seller item
+      @parsed_items.push({
+        ml_item_id: seller_item['body']['id'],
+        seller_id: seller.nickname,
+        title: seller_item['body']['title'],
+        permalink: seller_item['body']['permalink'],
+        price: seller_item['body']['price'],
+        available_quantity: seller_item['body']['available_quantity'],
+        sold_quantity: seller_item['body']['sold_quantity'],
+        logistic_type: seller_item['body']['shipping']['logistic_type']
+      })
+    end
+    @parsed_items
+  end
+
+  
+
+
+
 
 
 end
