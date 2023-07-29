@@ -2,31 +2,52 @@
 class FulfillmentController < ApplicationController
   before_action :authenticate_user!
   def index
+    @items = []
     current_user.sellers.each do |seller|
+      seller_items_ids = []
+      seller_items_data = []
+      puts seller.nickname
       auth_header = { 'Authorization' => "Bearer #{seller.access_token}" }
       url = "https://api.mercadolibre.com/users/#{seller.ml_seller_id}/items/search?logistic_type=fulfillment&labels=without_stock"
       resp = JSON.parse(RestClient.get(url, auth_header))
       # esse resp nos trás apenas os items_ids, vamos ter que fazer um multget para pega-los
       # pode ser que não tenha nenhum anuncio sem estoque no full
-      if resp['results'].empty?
+      pp resp['results']
+      puts resp['results'].blank?
+      puts resp['results']
+      if resp['results'].blank?
         puts 'Parabéns, não há anúncios sem estoque no full!'
-        @item = []
+        seller_items_ids = []
       else
-        @items = resp['results']
+        puts 'Há anúncios no full sem estoque'
+        seller_items_ids = resp['results']
+        pp seller_items_ids
         # tambem temos que verificar se TEM UM SCROLL_ID
-        url = "https://api.mercadolibre.com/users/#{@seller.ml_seller_id}/items/search?logistic_type=fulfillment&labels=without_stock&search_type=scan&scroll_id=#{resp['scroll_id']}&limit=100"
-        until resp['results'].empty?
-          resp = JSON.parse(RestClient.get(url, auth_header))
-          @items.push(*resp['results'])
+        if resp['scroll_id'].blank?
+           # entao temos menos 20 resultados e não é necessário scroll_id
+          puts 'não precisa de scroll_id'
+        else
+          puts 'precisa de scroll_id'
+          url = "https://api.mercadolibre.com/users/#{@seller.ml_seller_id}/items/search?logistic_type=fulfillment&labels=without_stock&search_type=scan&scroll_id=#{resp['scroll_id']}&limit=100"
+          until resp['results'].blank?
+            resp = JSON.parse(RestClient.get(url, auth_header))
+            seller_items_ids.push(*resp['results'])
+          end
         end
-        # esses são os ml_items_ides que 
-        @items
+        
       end
+      pp seller_items_ids
+      # aqui já vamos pegar os dados de cada anúncio do seller
+      seller_items_data = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller, seller_items_ids)
+      pp seller_items_data
+      @items.push(seller_items_data)
     end
+    # até aqui, está tudo funcionando, agora é só tratar esse resultado e mandar pro front!
+    pp @items
 
     #items = Item.includes(:seller).where(logistic_type: 'fulfillment', available_quantity: 0)
     #item_without_stock_at_fullfilment = items.map { |item| item.attributes.merge(seller_nickname: item.seller.nickname) }
-    render json: item_without_stock_at_fullfilment, status: 200
+    render json: @items, status: 200
   end
 
   def to_increase_stock

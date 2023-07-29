@@ -3,9 +3,10 @@ module ApiMercadoLivre
   # fetch all items data from a seller
   class FetchAllItemsDataBySeller < ApplicationService
 
-    def initialize(seller)
+    def initialize(seller, items_ids)
       ApiMercadoLivre::AuthenticationService.call(seller)
-      @items_ids = ApiMercadoLivre::FetchAllItemsIdsBySeller.call(seller)
+      # @items_ids = ApiMercadoLivre::FetchAllItemsIdsBySeller.call(seller)
+      @items_ids = items_ids
       @seller = seller
     end
 
