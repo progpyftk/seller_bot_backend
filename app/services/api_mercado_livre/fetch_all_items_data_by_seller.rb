@@ -11,11 +11,7 @@ module ApiMercadoLivre
     end
 
     def call
-      puts "*** Iniciando: ApiMercadoLivre::FetchAllItemsDataBySeller *** "
-      puts "Seller: #{@seller.nickname}"
       fetch_items_data
-      puts " *** Iniciando: ApiMercadoLivre::FetchAllItemsDataBySeller *** "
-      puts " Resposta final com todos os dados de todos os anúncios "
       @response
     end
 

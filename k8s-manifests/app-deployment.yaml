@@ -82,13 +82,7 @@ spec:
           name: app
           ports:
             - containerPort: 3000
-          resources:
-            requests:
-              cpu: "200m"     # Request 100 milli CPUs (0.1 CPU cores)
-              memory: "256Mi" # Request 256 Mebibytes of memory
-            limits:
-              cpu: "400m"     # Limit container to 200 milli CPUs (0.2 CPU cores)
-              memory: "512Mi" # Limit container to 512 Mebibytes of memory
+          resources: {}
       restartPolicy: Always
       imagePullSecrets:
         - name: newregistrykey

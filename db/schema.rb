@@ -10,10 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_07_17_190835) do
+ActiveRecord::Schema.define(version: 2023_08_01_125827) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "estoques", force: :cascade do |t|
+    t.string "sku"
+    t.integer "quantidade"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "items", primary_key: "ml_item_id", id: :string, force: :cascade do |t|
     t.string "title"

@@ -8,9 +8,7 @@ module ApiMercadoLivre
     end
 
     def call
-      puts "*** Iniciando: ApiMercadoLivre::FetchAllItemsIdsBySeller *** "
       fetch_all_items_ids
-      puts "*** Finalizando: ApiMercadoLivre::FetchAllItemsIdsBySeller *** "
       @items
     end
 
