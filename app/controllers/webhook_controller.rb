@@ -11,7 +11,7 @@ class WebhookController < ApplicationController
     end
 
     def updatedb
-        status = UpdatedbJob.perform_async
+        status = PopulateTinyDb.perform_async
         render json: {}, status: status
     end
 end

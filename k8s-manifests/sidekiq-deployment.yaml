@@ -75,6 +75,11 @@ spec:
                 configMapKeyRef:
                   key: REDIS_PORT
                   name: env
+            - name: TINY_API_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  key: TINY_API_TOKEN
+                  name: env
           image: losimonassi/seller_bot_backend:latest
 
           name: sidekiq

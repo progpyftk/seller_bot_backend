@@ -78,6 +78,11 @@ spec:
               configMapKeyRef:
                 key: DEVISE_JWT_SECRET_KEY
                 name: env
+          - name: TINY_API_TOKEN
+            valueFrom:
+              configMapKeyRef:
+                key: TINY_API_TOKEN
+                name: env
           image: losimonassi/seller_bot_backend:latest
           name: app
           ports:

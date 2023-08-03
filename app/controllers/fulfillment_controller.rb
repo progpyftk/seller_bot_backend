@@ -36,9 +36,10 @@ class FulfillmentController < ApplicationController
 
 
   def flex
-    # atualiza a BD com o estoque atual
+    # atualiza a base de dados com as últimas modificações de estoque do Tiny
     tiny = ApiTiny::TinyApiService.new()
-    tiny.fetch_products
+    tiny.atualiza_estoques_alterados
+
     @items = []
     # Iterate through each seller associated with the current user
     current_user.sellers.each do |seller|
@@ -160,6 +161,16 @@ class FulfillmentController < ApplicationController
   end
   
   def build_parsed_item(item_data, seller, flex, has_variation, variation_data, sku)
+
+    # store_quantity
+    store_quantity = find_estoque_by_sku(sku)
+    if !store_quantity.nil?
+      store_quantity = store_quantity < 0 ? 0 : store_quantity
+    else
+      store_quantity = 999
+    end
+    
+
     # Build a hash representing the parsed item
     {
       ml_item_id: item_data['body']['id'],
@@ -173,10 +184,35 @@ class FulfillmentController < ApplicationController
       flex: flex,
       variation: has_variation,
       variation_id: variation_data ? variation_data['id'] : nil,
-      store_quantity: 0,
+      store_quantity: store_quantity,
       sku: sku
     }
   end
+
+  # Encontre o objeto "Estoque" pelo seu SKU
+  def find_estoque_by_sku(sku_procurado)
+    begin
+      produto_procurado = Estoque.find_by(sku: sku_procurado)
+
+      # Verifique se o objeto foi encontrado
+      if produto_procurado
+        # O objeto foi encontrado
+        puts "Estoque encontrado: #{produto_procurado.inspect}"
+        return produto_procurado.quantidade
+      else
+        # O objeto não foi encontrado
+        puts "Estoque não encontrado para o SKU: #{sku_procurado}"
+        return nil
+      end
+    rescue ActiveRecord::RecordNotFound => e
+      # Caso ocorra um erro de RecordNotFound, trata o erro e retorna nil
+      puts "Erro ao encontrar o estoque por SKU: #{e.message}"
+      return nil
+    end
+  end
+
+
+  
   
 
   
