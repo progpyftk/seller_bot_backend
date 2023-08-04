@@ -23,6 +23,7 @@ gem 'jbuilder', '~> 2.7'
 gem 'redis'
 # gem 'redis-rails'
 gem 'sidekiq'
+gem 'sidekiq-unique-jobs'
 
 # gem '-scheduler'
 gem 'sinatra', require: nil

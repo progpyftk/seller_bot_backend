@@ -4,17 +4,12 @@ class SellerController < ApplicationController
   before_action :authenticate_user!
  
   def index
-    puts '---- current user ----'
     puts current_user.email
-    puts 'headers recebidos'
     pp request.headers
-    IncrementCounter.perform_async()
     Seller.all.each do |seller|
-      puts 'autenticando todos os sellers no controller seller_controller'
       ApiMercadoLivre::AuthenticationService.call(seller)
     end
     @sellers = Seller.all
-    #render plain: "OK"
     render json: @sellers, status: 200
   end
 
