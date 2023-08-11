@@ -85,16 +85,15 @@ module ApiTiny
 			Estoque.all.each do |produto|
 				data = fetch_product_data_by_id(produto.id_produto)
 				pp data
-				if data['retorno']['produto']['saldo'].blank?
-					puts "não foi possível atualizar o produto #{produto.id_produto}"
-				else
+				# aqui está o problema, pois ele precisa avaliar se há produto data['retorno']['produto']
+				
+				if data['retorno'] && data['retorno']['produto'] && data['retorno']['produto']['saldo']
 					produto.quantidade = data['retorno']['produto']['saldo']
-					if produto.quantidade < 0
-						produto.quantidade = 0
-					end
+					produto.quantidade = 0 if produto.quantidade < 0
 					produto.save
-					# Add a delay between API calls to comply with rate limit
-				end				
+				else
+					puts "Não foi possível atualizar o produto #{produto.id_produto}"
+				end
 				sleep(60.0 / API_RATE_LIMIT)
 			end
     end
