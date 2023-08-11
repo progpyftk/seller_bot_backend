@@ -23,7 +23,7 @@ Rails.application.routes.draw do
   post 'item/fiscal-data', to: 'item#fiscal_data'
   post 'item/general-data', to: 'item#general_data'
   post 'webhook/handle', to: 'webhook#handle'
-  get 'webhook/updatedb', to: 'webhook#updatedb'
+  get 'webhook/update-tiny-stock', to: 'webhook#tiny_dp_update'
   mount Sidekiq::Web => '/sidekiq'
 
   devise_for :users,

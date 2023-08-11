@@ -15,6 +15,7 @@ class PopulateTinyDb
     tiny = ApiTiny::TinyApiService.new()
 
     begin
+      # pega todos os produtos e seus dados do Tiny, 
       tiny.build_and_update_estoque_db
       tiny.atualiza_quantidade_por_id
     rescue RestClient::ExceptionWithResponse => e

@@ -10,7 +10,7 @@ class WebhookController < ApplicationController
         head :ok
     end
 
-    def updatedb
+    def tiny_dp_update
         status = PopulateTinyDb.perform_async
         render json: {}, status: status
     end

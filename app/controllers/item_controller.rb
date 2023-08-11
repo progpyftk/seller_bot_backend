@@ -15,20 +15,13 @@ class ItemController < ApplicationController
     end
   end
 
-  # Controller action to fetch items with free shipping and a price less than $80 from MercadoLibre API
-  def free_shipping
-    @items = fetch_items_with_free_shipping_and_low_price
-
-    # Render the @items array as JSON for the response with status 200.
-    render json: @items, status: 200
-  end
- 
-
   def change_to_free_shipping
-    item_params = params.require(:item).permit(:ml_item_id)
-    item = Item.find(item_params[:ml_item_id])
+    item_params = params.require(:item).permit(:ml_item_id, :seller_id)
+    puts "Recebendo dados do anúncio #{item_params[:ml_item_id]}, #{item_params[:seller_id]}"
+    item = item_params[:ml_item_id]
+    seller = Seller.find_by(nickname: item_params[:seller_id])
     begin
-      resp = JSON.parse(ApiMercadoLivre::FreeShipping.call(item))
+      resp = ApiMercadoLivre::ChangeFreeShipping.call(seller, item)
       render json: resp, status: 200
     rescue RestClient::ExceptionWithResponse => e
       render json: e, status: 400
@@ -53,7 +46,6 @@ class ItemController < ApplicationController
     end
   end
 
-  
   # Controller action to fetch general data for a MercadoLibre item.
   def general_data
     # Extract the required parameters from the request (specifically, the ml_item_id).
@@ -72,51 +64,53 @@ class ItemController < ApplicationController
     end
   end
 
-  private
-
-  # Fetch items with free shipping and price less than $80 for all sellers associated with the current user
-  def fetch_items_with_free_shipping_and_low_price
+  def free_shipping
     items = []
-
-    current_user.sellers.each do |seller|
-      seller_items = fetch_seller_items_with_free_shipping_and_low_price(seller)
-      items.concat(seller_items) unless seller_items.empty?
+    Seller.all.each do |seller|
+      puts "--- Iniciando tratamento do frete grátis -- #{seller.nickname}"
+      # dados para chamada
+      auth_header = { 'Authorization' => "Bearer #{seller.access_token}" }
+      # vamos testar 3 chamadas diferentes
+      # usando sitesra
+      url = "https://api.mercadolibre.com/sites/MLB/search?seller_id=#{seller.ml_seller_id}&price=0-78.99&shipping_cost=free"
+      resposta = JSON.parse(RestClient.get(url, auth_header))
+      if resposta['results'].present?
+        items.push(*resposta['results'])
+        offset = 50
+        while resposta['results'].present?
+          url = "https://api.mercadolibre.com/sites/MLB/search?seller_id=#{seller.ml_seller_id}&price=0-78.99&shipping_cost=free&offset=#{offset}"
+          resposta = JSON.parse(RestClient.get(url, auth_header))
+          offset += 50
+          items.push(*resposta['results'])
+        end
+      end
     end
 
-    items
+    puts "a API do ML retornou #{items.length} resultados"
+    parsed_items = parse_items_data(items)
+    parsed_items.each do |item|
+      puts 'desligando frete gratis'
+      puts item[:seller_id]
+      puts item[:ml_item_id]
+      seller = Seller.find_by(ml_seller_id: item[:seller_id])
+      ApiMercadoLivre::ChangeFreeShipping.call(seller, item[:ml_item_id])
+    end
+
+    render json: parsed_items, status: 200
   end
 
-  # Fetch seller items with free shipping and price less than $80
-  def fetch_seller_items_with_free_shipping_and_low_price(seller)
-    auth_header = { 'Authorization' => "Bearer #{seller.access_token}" }
-
-    # Build the MercadoLibre API URL for fetching seller items
-    url = "https://api.mercadolibre.com/sites/MLB/search?seller_id=#{seller.ml_seller_id}&price=0-79&shipping_cost=free" 
-
-    # Fetch the API response for the URL with the given authorization header.
-    resp = fetch_api_response(url, auth_header)
-
-    # Return an empty array if there are no items for the seller.
-    return [] if resp['results'].blank?
-
-    parse_items_data(seller, resp['results'])
-  end
-
-  # Fetch the API response for the given URL and authorization header.
-  # Handle any API request errors, and return an empty array in case of errors.
-  def fetch_api_response(url, auth_header)
-    JSON.parse(RestClient.get(url, auth_header))
-  rescue StandardError => e
-    puts "Error fetching data from API: #{e.message}"
-    []
-  end
+  private
 
   # Parse item data for a seller and return an array of parsed items
-  def parse_items_data(seller, items_data)
-    items_data.map do |item_data|
+  def parse_items_data(items_data)
+    filtered_items = items_data.reject do |item_data|
+      puts 'removed an item'
+      item_data['shipping']['free_shipping'] == false
+    end
+    parsed_items = filtered_items.map do |item_data|
       {
         ml_item_id: item_data['id'],
-        seller_id: seller.nickname,
+        seller_id: item_data['seller']['id'],
         title: item_data['title'],
         permalink: item_data['permalink'],
         price: item_data['price'],
@@ -125,5 +119,11 @@ class ItemController < ApplicationController
         logistic_type: item_data['shipping']['logistic_type']
       }
     end
+    parsed_items
   end
+
+ 
+
+
+
 end

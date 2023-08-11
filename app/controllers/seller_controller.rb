@@ -86,4 +86,31 @@ class SellerController < ApplicationController
     resp = ApiMercadoLivre::MultithreadActiveItems.call('Bluevix')
     render json: resp, status: 200
   end
+
+  def seller_promotions
+    # dados de teste
+    promotion_id = "P-MLB12725010"
+    promotion_type = "DEAL"
+    seller = Seller.find_by(ml_seller_id: "137131292")
+
+
+    # retorna todas as promoções habilitadas para um seller
+    resp = ApiMercadoLivre::SellerPromotionsService.call(seller)
+    pp resp
+    # retorna todos os anúncios elegiveis para uma determinada promoção
+    resp = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, promotion_type)
+    pp resp
+    #resp = ApiMercadoLivre::Promotions.call
+
+    puts '**** Iniciando teste do activator ****'
+    ApiMercadoLivre::PromotionItemsActivator.call
+
+    render json: resp, status: 200
+  end
+
+  def cadidate
+    url = "https://api.mercadolibre.com/seller-promotions/promotions/P-MLB12719008/items?promotion_type=DEAL&app_version=v2"
+  end
+
+
 end

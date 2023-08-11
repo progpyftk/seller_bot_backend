@@ -61,6 +61,8 @@ module ApiTiny
 		if produtos.blank?
 			return
 		else
+			# cadastro ou atualiza o produto na tabela Estoque, porem não temos dados de quantidades nessa chamada do Tiny
+			# esse é o grande problema, pois depois temos que fazer uma chaamda para cada SKU e pegar sua quantidade no Tiny
 			produtos.each do |produto_data|
 				puts "ID do Produto no Tiny: #{produto_data['produto']['id']}"
 				# Find or initialize Estoque by id_produto
@@ -69,7 +71,7 @@ module ApiTiny
 				estoque.sku = produto_data['produto']['codigo']
 				# Save the record in the database (only if it's new)
 				estoque.save
-				puts 'Produto adicionado/atualzado na tabela estoque.'
+				puts 'Produto adicionado/atualzado na tabela estoque, porém ainda falta atualizar a quantidae.'
 			end
 		end
 		# Print all records in the Estoque table for verification
