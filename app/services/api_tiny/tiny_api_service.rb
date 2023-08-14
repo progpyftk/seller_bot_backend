@@ -128,7 +128,7 @@ module ApiTiny
 				data['retorno']['produtos'].each do |product|
 					puts 'adicionado dado na tabela Estoque'
 		
-					estoque = Estoque.find_or_initialize_by(sku: product['produto']['id'])
+					estoque = Estoque.find_or_initialize_by(id_produto: product['produto']['id'])
 					estoque.quantidade = product['produto']['saldo']
 					estoque.save
 				end
