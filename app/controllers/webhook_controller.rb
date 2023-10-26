@@ -1,4 +1,5 @@
 class WebhookController < ApplicationController
+   
     def handle
         puts '--- recebendo post do ML ----'
         # Process the webhook payload here

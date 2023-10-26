@@ -92,9 +92,48 @@ class SellerController < ApplicationController
     render json: [], status: 200
   end
 
-  def cadidate
-    url = "https://api.mercadolibre.com/seller-promotions/promotions/P-MLB12719008/items?promotion_type=DEAL&app_version=v2"
+  # monta a tabela de promocoes
+  def promotions
+    @items = []
+    Seller.all.each do |seller|
+      seller_promotions = ApiMercadoLivre::SellerPromotionsService.call(seller)
+      seller_promotions['results'].each do |seller_promotion|
+        parsed_item = {
+          seller: seller.ml_seller_id,
+          promotion_id: seller_promotion['id'],
+          type: seller_promotion['type'],
+          status: seller_promotion['status'],
+          start_date: seller_promotion['start_date'],
+          finish_date: seller_promotion['finish_date'],
+          deadline_date: seller_promotion['deadline_date'],
+          name: seller_promotion['name'],
+          benefits: seller_promotion['benefits'],
+        }
+        pp seller_promotion['benefits']
+        @items.push(parsed_item)
+      end
+    end
+    pp @items
+    render json: @items, status: 200
   end
+
+  # ativa a promocao clicada pelo usuario
+  def promotion_data
+    puts "entrei na promotion_data"
+    items = []
+    # aqui funciona recebendo os parametros de um post com os dados da promoção, porém ainda não vai ativar
+    # vamos pegar os dados da promocoes, e depois se o cara quiser ele vai ativar
+    promotion_params = params.require(:promotion_data).permit(:promotion_id, :type, :seller)
+    pp promotion_params
+    puts "iniciado a leitura dos items da promocao"
+    seller = Seller.find(promotion_params[:seller])
+    items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_params[:promotion_id], promotion_params[:type])
+    puts "terminou a leitura dos items da promocao"
+    pp items
+    render json: items, status: 200
+  end
+
+
 
 
 end

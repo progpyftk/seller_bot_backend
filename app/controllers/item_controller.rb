@@ -2,6 +2,7 @@ require_relative '../services/api_mercado_livre/authentication_service'
 
 class ItemController < ApplicationController
   before_action :authenticate_user!
+  
   def add_stock
     DbPopulate::UpdateItemsTableService.call
     item_params = params.require(:item).permit(:quantity, :ml_item_id)
@@ -51,13 +52,15 @@ class ItemController < ApplicationController
     # Extract the required parameters from the request (specifically, the ml_item_id).
     item_params = params.require(:item).permit(:ml_item_id)
 
+
     begin
       # Call the external ApiMercadoLivre service to fetch general data for the specified item.
       # The service takes the ml_item_id as a parameter and returns the general data in JSON format.
       resp = JSON.parse(ApiMercadoLivre::ItemGeneralData.call(item_params[:ml_item_id]))
+      resp2 = JSON.parse(ApiMercadoLivre::WinThePrice.call(item_params[:ml_item_id]))
 
       # Render the general data as JSON for the response with status 200.
-      render json: resp, status: 200
+      render json: resp2, status: 200
     rescue RestClient::ExceptionWithResponse => e
       # In case of an error from the external API request, render the error response as JSON with status 400.
       render json: e, status: 400

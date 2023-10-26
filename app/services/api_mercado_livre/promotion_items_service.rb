@@ -10,10 +10,10 @@ module ApiMercadoLivre
     end
 
     def call
-      # puts 'Iniciando a PromotionItemsService'
-      # puts "Seller: #{@seller}"
-      # puts "Promotion ID: #{@promotion_id}"
-      # puts "Promotion Type: #{@promotion_type}"
+      puts 'Iniciando a PromotionItemsService'
+      puts "Seller: #{@seller}"
+      puts "Promotion ID: #{@promotion_id}"
+      puts "Promotion Type: #{@promotion_type}"
       fetch_items_promotion
     end
 
@@ -33,6 +33,7 @@ module ApiMercadoLivre
       while response['results'].present? && response['results'].length >= 50 do
         url = "https://api.mercadolibre.com/seller-promotions/promotions/#{@promotion_id}/items?promotion_type=#{@promotion_type}&offset=#{offset}&status=candidate&app_version=v2"
         response = HTTParty.get(url, headers: headers)
+        pp response['results']
         handle_response(response)
         offset += 50
       end
