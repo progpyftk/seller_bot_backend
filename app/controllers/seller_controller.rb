@@ -4,6 +4,7 @@ class SellerController < ApplicationController
   before_action :authenticate_user!
  
   def index
+    puts 'estou no index'
     puts current_user.email
     pp request.headers
     Seller.all.each do |seller|
@@ -142,8 +143,7 @@ class SellerController < ApplicationController
   def activate_promotion
     promotion_params = params.require(:promotion_data).permit(:promotion_id, :type, :seller)
     pp promotion_params
-    seller = Seller.find(promotion_params[:seller])
-    result = ApiMercadoLivre::PromotionItemsActivator.call(seller, promotion_params[:type], promotion_params[:promotion_id]) 
+    result = ActivatePromotion.perform_async(promotion_params[:seller], promotion_params[:type], promotion_params[:promotion_id] )
     pp result
     render json: result.to_json, status: 200
   end

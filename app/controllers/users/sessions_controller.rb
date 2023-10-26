@@ -2,6 +2,7 @@ class Users::SessionsController < Devise::SessionsController
   respond_to :json
   private
   def respond_with(resource, _opts = {})
+    puts 'Usuario loggado'
     render json: { message: 'Logged.', current_user: current_user.email }, status: :ok
   end
   def respond_to_on_destroy

@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
 
   def render_resource(resource)
     if resource.errors.empty?
+      puts 'estou aqui no application controller'
       render json: resource
     else
       validation_error(resource)
@@ -10,6 +11,7 @@ class ApplicationController < ActionController::Base
   end
 
   def validation_error(resource)
+    puts 'estou aqui no application controller no validation_error'
     render json: {
       errors: [
         {
