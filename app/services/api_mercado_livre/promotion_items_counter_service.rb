@@ -1,5 +1,5 @@
 module ApiMercadoLivre
-  class PromotionItemsService < ApplicationService
+  class PromotionItemsCounterService < ApplicationService
     def initialize(seller, promotion_id, promotion_type, benefits = nil, subtype = nil)
       @promotion_id = promotion_id
       @promotion_type = promotion_type
@@ -21,6 +21,7 @@ module ApiMercadoLivre
         'Authorization' => "Bearer #{@seller.access_token}",
         'Content-Type' => 'application/json'
       }
+
       response = HTTParty.get(url, headers: headers)
       handle_response(response)
 
@@ -28,20 +29,18 @@ module ApiMercadoLivre
       while response['results'].present? && response['results'].length >= 50 do
         url = "https://api.mercadolibre.com/seller-promotions/promotions/#{@promotion_id}/items?promotion_type=#{@promotion_type}&offset=#{offset}&status=candidate&app_version=v2"
         response = HTTParty.get(url, headers: headers)
-        pp response['results']
         handle_response(response)
         offset += 50
         if offset > 150
           break
         end
       end
-
-      pp @all_items
+      @all_items
     end
 
     def handle_response(response)
       if response.success?
-        log_successful_call
+        # log_successful_call
         @all_items.push(*response['results'])
       else
         log_error_call(response)

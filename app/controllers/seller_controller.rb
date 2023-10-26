@@ -114,23 +114,38 @@ class SellerController < ApplicationController
       end
     end
     pp @items
+
     render json: @items, status: 200
   end
 
-  # ativa a promocao clicada pelo usuario
+  # informacoes da promocao no dialogo
   def promotion_data
     puts "entrei na promotion_data"
-    items = []
-    # aqui funciona recebendo os parametros de um post com os dados da promoção, porém ainda não vai ativar
-    # vamos pegar os dados da promocoes, e depois se o cara quiser ele vai ativar
+    # Aqui funciona recebendo os parâmetros de um POST com os dados da promoção, porém ainda não vai ativar
+    # Vamos pegar os dados da promoções, e depois, se o usuário quiser, ele vai ativar
+    puts " -- promotion_params --"
     promotion_params = params.require(:promotion_data).permit(:promotion_id, :type, :seller)
     pp promotion_params
-    puts "iniciado a leitura dos items da promocao"
+    puts " -- iniciando a leitura dos itens da promoção --"
     seller = Seller.find(promotion_params[:seller])
-    items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_params[:promotion_id], promotion_params[:type])
-    puts "terminou a leitura dos items da promocao"
-    pp items
-    render json: items, status: 200
+    # Utiliza o PromotionItemsCounterService para contar os itens, se houver muitos, paramos em 300 para evitar sobrecarga
+    # esse serviço já filtra os candidatos
+    items = ApiMercadoLivre::PromotionItemsCounterService.call(seller, promotion_params[:promotion_id], promotion_params[:type])
+    puts " -- fim da leitura dos anúncios --"
+    puts " -- quantidade de anúncios na campanha --"
+    puts items.length
+    puts " -- anúncios da campanha --"
+    result = { total_items: items.length }
+    render json: result.to_json, status: 200
+  end
+
+  def activate_promotion
+    promotion_params = params.require(:promotion_data).permit(:promotion_id, :type, :seller)
+    pp promotion_params
+    seller = Seller.find(promotion_params[:seller])
+    result = ApiMercadoLivre::PromotionItemsActivator.call(seller, promotion_params[:type], promotion_params[:promotion_id]) 
+    pp result
+    render json: result.to_json, status: 200
   end
 
 

@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   post 'seller/edit', to: 'seller#edit'
   post 'seller/delete', to: 'seller#delete'
   post 'seller/promotion-data', to: 'seller#promotion_data'
+  post 'seller/activate-promotion', to: 'seller#activate_promotion'
   post 'item/add-stock', to: 'item#add_stock'
   get 'item/retrieve-item', to: 'item#retrieve_item'
   get 'item/price-events', to: 'item#price_events'
