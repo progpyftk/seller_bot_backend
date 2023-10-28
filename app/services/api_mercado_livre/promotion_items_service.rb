@@ -27,7 +27,6 @@ module ApiMercadoLivre
       while response['results'].present? && response['results'].length >= 50 do
         url = "https://api.mercadolibre.com/seller-promotions/promotions/#{@promotion_id}/items?promotion_type=#{@promotion_type}&offset=#{offset}&status=candidate&app_version=v2"
         response = HTTParty.get(url, headers: headers)
-        pp response['results']
         handle_response(response)
         offset += 50
         if offset > @offset_limit
@@ -48,7 +47,8 @@ module ApiMercadoLivre
     end
 
     def log_successful_call
-      puts 'Chamada bem-sucedida!'
+      
+      puts 'promotion_items_service - Chamada bem-sucedida!'
     end
 
     def log_error_call(response)

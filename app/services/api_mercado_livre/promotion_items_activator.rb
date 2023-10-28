@@ -23,7 +23,9 @@ module ApiMercadoLivre
       def call
         puts "Iniciando a ativação dos anúncios da promoção selecionada"
         activate_promotion
-        {ativados: @ativados, nao_ativados: @nao_ativados}
+        puts "++++++++++++++++ FIM DAS APLICAÇÕES +++++++++++++++++++"
+        resultado = [{ ativados: @ativados, nao_ativados: @nao_ativados }]
+        pp resultado
       end
   
       private
@@ -46,39 +48,17 @@ module ApiMercadoLivre
       end
 
       def activate_deal_promotion(seller, promotion_id, promotion_type)
-        Rails.logger.info "#{Time.now} ------ #{seller.nickname} -----------------"
-        Rails.logger.info "#{Time.now} ------ Anúncios da Campanha: #{promotion_id} -----------------"
-        puts "iniciado a leitura dos items da promocao"
+        # pega os items da promoção
         items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "DEAL", 1000)
-        puts "terminou a leitura dos items da promocao"
+        # manda os items para o sidekiq
         if !items.blank?
-          Rails.logger.info "#{Time.now} - Quantidade de anúncios: #{items.length}"
           items.each do |item|
-            Rails.logger.info "# Aplicando promoção no - #{item.to_json}"
-            if item['status'] == "candidate"
-              item_id = item['id']
-              deal_price = item['original_price'].to_f * 0.95
-              url = "https://api.mercadolibre.com/seller-promotions/items/#{item_id}?app_version=v2"
-              headers = {
-                'Authorization' => "Bearer #{seller.access_token}",
-                'Content-Type' => 'application/json'
-              }
-              body = {
-                "promotion_id" => promotion_id,
-                "promotion_type" => promotion_type,
-                "deal_price" => deal_price.round(0),
-              }.to_json
-              response = HTTParty.post(url, headers: headers, body: body)
-              if response.success?
-                @ativados = @ativados + 1
-                Rails.logger.info "Promoção aplicada com sucesso"
-                Rails.logger.info "#{response.body.to_json}" 
-              else
-                @nao_ativados = @nao_ativados + 1
-                puts "Erro no momento da ativação"
-                Rails.logger.info "#{response.code.to_json}" 
-                Rails.logger.info "#{response.body.to_json}" 
-              end
+            puts 'adicionando item na fila do sidekiq'
+            ativado = ApplyDealPromotionJob.perform_async(item, seller.ml_seller_id, promotion_id, promotion_type)
+            if ativado
+              @ativados = @ativados + 1
+            else
+              @nao_ativados = @nao_ativados + 1
             end
           end
         else
