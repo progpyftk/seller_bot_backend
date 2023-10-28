@@ -96,6 +96,7 @@ class SellerController < ApplicationController
   # monta a tabela de promocoes
   def promotions
     @items = []
+    @table_list = []
     Seller.all.each do |seller|
       seller_promotions = ApiMercadoLivre::SellerPromotionsService.call(seller)
       seller_promotions['results'].each do |seller_promotion|
@@ -110,13 +111,25 @@ class SellerController < ApplicationController
           name: seller_promotion['name'],
           benefits: seller_promotion['benefits'],
         }
-        pp seller_promotion['benefits']
         @items.push(parsed_item)
       end
     end
-    pp @items
+    # vamos filtrar essa lista de promoções e verificar aquelas que possuem anúncios para ativar
+    filtered_promotions = @items.select do |promo|
+      promo[:status] == 'started' && ['DEAL', 'LIGHTNING', 'MARKETPLACE_CAMPAIGN'].include?(promo[:type])
+    end
+    
+    # para cada uma dessas vamos verificar se possui pelo menos um anúncio
+    filtered_promotions.each do |promotion|
+      seller = Seller.find(promotion[:seller])
+      if ApiMercadoLivre::PromotionItemsCheck.call(seller, promotion[:promotion_id], promotion[:type] )
+        @table_list.push(promotion)
+      end
+    end
 
-    render json: @items, status: 200
+    pp @table_list
+
+    render json: @table_list, status: 200
   end
 
   # informacoes da promocao no dialogo
@@ -131,7 +144,7 @@ class SellerController < ApplicationController
     seller = Seller.find(promotion_params[:seller])
     # Utiliza o PromotionItemsCounterService para contar os itens, se houver muitos, paramos em 300 para evitar sobrecarga
     # esse serviço já filtra os candidatos
-    items = ApiMercadoLivre::PromotionItemsCounterService.call(seller, promotion_params[:promotion_id], promotion_params[:type])
+    items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_params[:promotion_id], promotion_params[:type])
     puts " -- fim da leitura dos anúncios --"
     puts " -- quantidade de anúncios na campanha --"
     puts items.length

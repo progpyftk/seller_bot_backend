@@ -49,7 +49,7 @@ module ApiMercadoLivre
         Rails.logger.info "#{Time.now} ------ #{seller.nickname} -----------------"
         Rails.logger.info "#{Time.now} ------ Anúncios da Campanha: #{promotion_id} -----------------"
         puts "iniciado a leitura dos items da promocao"
-        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "DEAL")
+        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "DEAL", 1000)
         puts "terminou a leitura dos items da promocao"
         if !items.blank?
           Rails.logger.info "#{Time.now} - Quantidade de anúncios: #{items.length}"

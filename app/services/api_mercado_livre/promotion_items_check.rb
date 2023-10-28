@@ -1,11 +1,9 @@
 module ApiMercadoLivre
-  class PromotionItemsService < ApplicationService
-    def initialize(seller, promotion_id, promotion_type, offset_limit = 150)
+  class PromotionItemsCheck < ApplicationService
+    def initialize(seller, promotion_id, promotion_type)
       @promotion_id = promotion_id
       @promotion_type = promotion_type
       @seller = seller
-      @all_items = []
-      @offset_limit = offset_limit
     end
 
     def call
@@ -22,29 +20,20 @@ module ApiMercadoLivre
       }
       response = HTTParty.get(url, headers: headers)
       handle_response(response)
-
-      offset = 50
-      while response['results'].present? && response['results'].length >= 50 do
-        url = "https://api.mercadolibre.com/seller-promotions/promotions/#{@promotion_id}/items?promotion_type=#{@promotion_type}&offset=#{offset}&status=candidate&app_version=v2"
-        response = HTTParty.get(url, headers: headers)
-        pp response['results']
-        handle_response(response)
-        offset += 50
-        if offset > @offset_limit
-          break
-        end
+      if response['results'].nil?
+        return false
+      else
+        return true
       end
-      @all_items
     end
 
     def handle_response(response)
       if response.success?
         log_successful_call
-        @all_items.push(*response['results'])
+    
       else
         log_error_call(response)
       end
-      response
     end
 
     def log_successful_call

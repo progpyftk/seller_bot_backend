@@ -1,12 +1,9 @@
 module ApiMercadoLivre
   class PromotionItemsCounterService < ApplicationService
-    def initialize(seller, promotion_id, promotion_type, benefits = nil, subtype = nil)
+    def initialize(seller, promotion_id, promotion_type)
       @promotion_id = promotion_id
       @promotion_type = promotion_type
       @seller = seller
-      @benefits = benefits
-      @subtype = subtype
-      @all_items = []
     end
 
     def call
