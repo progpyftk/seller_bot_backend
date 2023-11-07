@@ -1,15 +1,14 @@
 class ApplyDealPromotionJob
   include Sidekiq::Worker
 
-  @is_running = false # Inicializamos a flag como falsa
+# meu proximo desafio é saber quando terminou de fazer, e provavelmente isso será feito por meio da Redis
+# no chatgpt tem uma pergunta qeu fiz sobre isso
+=begin
+Você pode usar o Redis para manter um contador ou uma flag que indica quantos jobs foram processados. 
+A ideia é incrementar esse contador toda vez que um job é concluído e verificar periodicamente se o número 
+total de jobs processados é igual ao número total de jobs que foram enfileirados.
+=end
 
-  def self.is_running?
-    @is_running
-  end
-
-  def self.set_running(flag)
-    @is_running = flag
-  end
 
   def perform(item, ml_seller_id, promotion_id, promotion_type)
     seller = Seller.find(ml_seller_id)
