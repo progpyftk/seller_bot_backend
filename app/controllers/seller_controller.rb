@@ -2,7 +2,7 @@ require_relative '../services/api_mercado_livre/authentication_service'
 
 class SellerController < ApplicationController
   before_action :authenticate_user!
- 
+
   def index
     puts 'estou no index'
     puts current_user.email
@@ -88,15 +88,11 @@ class SellerController < ApplicationController
     render json: resp, status: 200
   end
 
-  def seller_promotions
-    ApiMercadoLivre::PromotionItemsActivator.call
-    render json: [], status: 200
-  end
-
   # monta a tabela de promocoes
-  def promotions
+  def promotions_table
     @items = []
     @table_list = []
+    # aqui temos que filtrar apenas os sellers do user
     Seller.all.each do |seller|
       seller_promotions = ApiMercadoLivre::SellerPromotionsService.call(seller)
       seller_promotions['results'].each do |seller_promotion|
@@ -118,7 +114,7 @@ class SellerController < ApplicationController
     filtered_promotions = @items.select do |promo|
       promo[:status] == 'started' && ['DEAL', 'LIGHTNING', 'MARKETPLACE_CAMPAIGN'].include?(promo[:type])
     end
-    
+
     # para cada uma dessas vamos verificar se possui pelo menos um anúncio
     filtered_promotions.each do |promotion|
       seller = Seller.find(promotion[:seller])
@@ -133,22 +129,14 @@ class SellerController < ApplicationController
   end
 
   # informacoes da promocao no dialogo
-  def promotion_data
-    puts "entrei na promotion_data"
+  def promotion_dialog_data
     # Aqui funciona recebendo os parâmetros de um POST com os dados da promoção, porém ainda não vai ativar
     # Vamos pegar os dados da promoções, e depois, se o usuário quiser, ele vai ativar
-    puts " -- promotion_params --"
     promotion_params = params.require(:promotion_data).permit(:promotion_id, :type, :seller)
-    pp promotion_params
-    puts " -- iniciando a leitura dos itens da promoção --"
     seller = Seller.find(promotion_params[:seller])
-    # Utiliza o PromotionItemsCounterService para contar os itens, se houver muitos, paramos em 300 para evitar sobrecarga
-    # esse serviço já filtra os candidatos
-    items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_params[:promotion_id], promotion_params[:type])
-    puts " -- fim da leitura dos anúncios --"
-    puts " -- quantidade de anúncios na campanha --"
+    # PromotionItemsCounterService - contar os itens e parar em 200, já seleciona os candidates
+    items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_params[:promotion_id], promotion_params[:type], 150)
     puts items.length
-    puts " -- anúncios da campanha --"
     result = { total_items: items.length }
     render json: result.to_json, status: 200
   end
@@ -156,8 +144,7 @@ class SellerController < ApplicationController
   def activate_promotion
     promotion_params = params.require(:promotion_data).permit(:promotion_id, :type, :seller)
     seller = Seller.find(promotion_params[:seller])
-    result = ApiMercadoLivre::PromotionItemsActivator.call(seller, promotion_params[:type], promotion_params[:promotion_id]) 
-    puts "---- terminou o activate promotion ----"
+    result = ApiMercadoLivre::PromotionItemsActivator.call(seller, promotion_params[:type], promotion_params[:promotion_id])
     render json: result.to_json, status: 200
   end
 

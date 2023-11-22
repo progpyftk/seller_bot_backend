@@ -1,39 +1,46 @@
 
 class FulfillmentController < ApplicationController
   before_action :authenticate_user!
-  
+
   # Controller action to fetch items from MercadoLibre API for sellers associated with the current user.
   def index
     @items = []
-
-    # Retrieve sellers associated with the current user, preloading their associated items.
+    # Iterate over each seller associated with the current user
     current_user.sellers.each do |seller|
-      puts seller.nickname
+      # Set up the authorization header for the API call
       auth_header = { 'Authorization' => "Bearer #{seller.access_token}" }
+      # Initialize pagination variables
+      offset = 0
+      limit = 50 # Ajuste conforme necessário
 
-      # Build the MercadoLibre API URL for fetching seller items without stock in fulfillment.
-      url = "https://api.mercadolibre.com/users/#{seller.ml_seller_id}/items/search?search_type=scan&labels=without_stock&logistic_type=fulfillment"
+      # Continue fetching pages until all items are retrieved
+      loop do
+        # Define the API endpoint URL for fetching items on fulfillment with pagination
+        url = "https://api.mercadolibre.com/sites/MLB/search?seller_id=#{seller.ml_seller_id}&logistic_type=fulfillment&limit=#{limit}&offset=#{offset}"
 
-      # Fetch the API response for the URL with the given authorization header.
-      resp = fetch_item_ids(url, auth_header, seller.ml_seller_id)
+        # Perform the API call and parse the JSON response
+        raw_response = RestClient.get(url, auth_header)
+        resp = JSON.parse(raw_response)
 
-      pp resp
+        # Break the loop if no more results are returned
+        break if resp['results'].blank?
 
-      # Skip further processing if there are no items for the seller.
-      next if resp.blank?
+        # Process each item in the response
+        resp['results'].each do |result|
+          process_item(result, seller, auth_header)
+        end
 
-      # If there are items, then fetch all seller items data using the API response - resp['results'] - the ml_items_ids.
-      seller_items_data = ApiMercadoLivre::FetchAllItemsDataBySeller.call(seller, resp)
+        # Increment the offset to get the next page of results
+        offset += limit
 
-      # Parse and push the item data for each seller item to the @items array.
-      parsed_seller_items = index_parse_and_push_items(seller, seller_items_data)
-      @items.push(*parsed_seller_items)
+        # Stop pagination if all results have been fetched
+        break if offset >= resp['paging']['total']
+      end
     end
 
-  # Render the @items array as JSON for the response with status 200.
-  render json: @items, status: 200
+    # Render the @items array as JSON for the response
+    render json: @items, status: :ok
   end
-
 
   def flex
     # atualiza a base de dados com as últimas modificações de estoque do Tiny
@@ -74,30 +81,69 @@ class FulfillmentController < ApplicationController
 
   private
 
+  # Helper method to process each item and add to @items array
+  def process_item(result, seller, auth_header)
+    if result['variations_data'].present?
+      result['variations_data'].each do |variation_key, variation_value|
+        inventory_id = variation_value["inventory_id"]
+        stock_url = "https://api.mercadolibre.com/inventories/#{inventory_id}/stock/fulfillment"
+        resp_stock = JSON.parse(RestClient.get(stock_url, auth_header))
+
+        # Adiciona ao array @items apenas se available_quantity for igual a zero
+        if resp_stock['available_quantity'].zero?
+          @items.push(build_item_data(result, seller, inventory_id, resp_stock))
+        end
+      end
+    else
+      inventory_id = result['inventory_id']
+      stock_url = "https://api.mercadolibre.com/inventories/#{inventory_id}/stock/fulfillment"
+      resp_stock = JSON.parse(RestClient.get(stock_url, auth_header))
+
+      # Adiciona ao array @items apenas se available_quantity for igual a zero
+      if resp_stock['available_quantity'].zero?
+        @items.push(build_item_data(result, seller, inventory_id, resp_stock))
+      end
+    end
+  end
+
+  # Helper method to build item data hash
+  def build_item_data(result, seller, inventory_id, resp_stock)
+    {
+      ml_item_id: result['id'],
+      seller_id: seller.nickname,
+      title: result['title'],
+      permalink: result['permalink'],
+      inventory_id: inventory_id,
+      available_quantity: resp_stock['available_quantity'],
+      sold_quantity: result['sold_quantity'],
+      logistic_type: result['shipping']['logistic_type'],
+    }
+  end
+
   #Fetch item IDs for the seller using the given API URL and authorization header.
   def fetch_item_ids(url, auth_header, ml_seller_id)
     item_ids = []
-  
+
     # Perform initial request to get item IDs and handle scroll_id for pagination.
     begin
       resp = JSON.parse(RestClient.get(url, auth_header))
       item_ids.push(*resp['results'])
       url = "https://api.mercadolibre.com/users/#{ml_seller_id}/items/search?search_type=scan&scroll_id=#{resp['scroll_id']}&limit=100"
     end until resp['results'].blank?
-  
+
     item_ids
   rescue StandardError => e
     puts "Error fetching data from API: #{e.message}"
     []
   end
-  
+
   # Parse and push the item data for each seller item to the @items array.
   def index_parse_and_push_items(seller, seller_items_data)
     parsed_items = []
-  
+
     seller_items_data.each do |seller_item|
       flex = seller_item['body']['shipping']['tags'].include?('self_service_in')
-  
+
       # Create a parsed item hash for each seller item
       if seller_item['body']['available_quantity'] == 0
         parsed_items << {
@@ -110,33 +156,33 @@ class FulfillmentController < ApplicationController
           sold_quantity: seller_item['body']['sold_quantity'],
           logistic_type: seller_item['body']['shipping']['logistic_type'],
         }
-      end 
+      end
     end
-  
+
     parsed_items
   end
 
 
   def flex_parse_and_push_items(seller, seller_items_data)
-    
+
     parsed_items = []
-    
+
     # Iterate through each seller item data
     seller_items_data.each do |seller_item|
       # Determine if the item has variations and if it is eligible for flex shipping
       flex = seller_item['body']['shipping']['tags'].include?('self_service_in')
       sku = nil
-  
+
       # Determine if the item has variations
       variation = seller_item['body']['variations'].present?
-  
+
       # If the item has variations, process each variation
       if variation
         seller_item['body']['variations'].each do |variation_data|
           # Find SKU information for each variation
           sku_dict = variation_data['attributes'].find { |dict| dict["id"] == "SELLER_SKU" }
           sku = sku_dict['value_name'] if sku_dict
-  
+
           # Build and add the parsed item to the parsed_items array
           parsed_items << build_parsed_item(seller_item, seller, flex, true, variation_data, sku)
         end
@@ -151,15 +197,15 @@ class FulfillmentController < ApplicationController
           # If the seller_custom_field is present, use it as the SKU
           sku = seller_item['body']['seller_custom_field']
         end
-  
+
         # Process the item itself and add it to the parsed_items array
         parsed_items << build_parsed_item(seller_item, seller, flex, false, nil, sku)
       end
     end
-  
+
     parsed_items
   end
-  
+
   def build_parsed_item(item_data, seller, flex, has_variation, variation_data, sku)
 
     # store_quantity
@@ -169,7 +215,7 @@ class FulfillmentController < ApplicationController
     else
       store_quantity = 999
     end
-    
+
 
     # Build a hash representing the parsed item
     {
@@ -212,16 +258,9 @@ class FulfillmentController < ApplicationController
   end
 
 
-  
-  
 
-  
+
+
+
 
 end
-
-
-
-
-
-
-

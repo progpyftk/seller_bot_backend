@@ -1,11 +1,3 @@
-# 1 - recebe todas as ofertas disponiveis para o seller SellerPromotionsService
-# 2 - para cada uma dessas promoções encontra os anúncios disponíveis PromotionItemsService
-# 3 - para cada um desses anúncios, de acordo com o tipo de promoção faz a sua ativação
-# melhorias futuras
-# ativação com base no markup
-# tratamento da ativação
-
-
 module ApiMercadoLivre
     # classe que ativa as promoçoes
     class PromotionItemsActivator < ApplicationService
@@ -14,22 +6,16 @@ module ApiMercadoLivre
         @seller = seller
         @type = type
         @promotion_id = promotion_id
-        @ativados = 0
-        @nao_ativados = 0
       end
-      
-  
+
       # Método de entrada para recuperar as promoções do vendedor
       def call
         puts "Iniciando a ativação dos anúncios da promoção selecionada"
         activate_promotion
-        puts "++++++++++++++++ FIM DAS APLICAÇÕES +++++++++++++++++++"
-        resultado = [{ ativados: @ativados, nao_ativados: @nao_ativados }]
-        pp resultado
       end
-  
+
       private
-  
+
       # Recupera as promoções do vendedor da API do Mercado Livre
       def activate_promotion
         # ativação das campanhas de acordo com seu type
@@ -48,23 +34,22 @@ module ApiMercadoLivre
       end
 
       def activate_deal_promotion(seller, promotion_id, promotion_type)
-        # pega os items da promoção
-        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "DEAL", 1000)
-        # manda os items para o sidekiq
-        if !items.blank?
+        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "DEAL", 100)
+        channel_key = "#{promotion_id}_#{seller.ml_seller_id}"
+        puts "VERICARRRR"
+        puts channel_key
+        if items.present?
           items.each do |item|
-            puts 'adicionando item na fila do sidekiq'
-            ativado = ApplyDealPromotionJob.perform_async(item, seller.ml_seller_id, promotion_id, promotion_type)
-            if ativado
-              @ativados = @ativados + 1
-            else
-              @nao_ativados = @nao_ativados + 1
-            end
+            PromotionJobTracker.job_enqueued(channel_key)
+            ApplyDealPromotionJob.perform_async(item, seller.ml_seller_id, promotion_id, promotion_type)
           end
         else
-          puts "Item veio em branco, logo não há anúncios aptos para essa campanha: #{promotion_id}  #{promotion_type}"
+          puts "No eligible announcements for campaign: #{promotion_id} #{promotion_type}"
         end
+        puts "Enqueued all items for promotion #{promotion_id} in Sidekiq."
       end
+
+
 
       def activate_lightning_promotion(seller, promotion_id, promotion_type)
         Rails.logger.info " ------ PROMOÇÃO LIGHTNING -----------------"
@@ -102,17 +87,17 @@ module ApiMercadoLivre
                 "stock" => stock,
                 "promotion_type" => promotion_type,
               }.to_json
-              Rails.logger.info body 
+              Rails.logger.info body
               response = HTTParty.post(url, headers: headers, body: body)
               if response.success?
                 @ativados = @ativados + 1
                 Rails.logger.info "Promoção aplicada com sucesso"
-                Rails.logger.info "#{response.body.to_json}" 
+                Rails.logger.info "#{response.body.to_json}"
               else
                 @nao_ativados = @nao_ativados + 1
                 puts "Erro no momento da ativação"
-                Rails.logger.info "#{response.code.to_json}" 
-                Rails.logger.info "#{response.body.to_json}" 
+                Rails.logger.info "#{response.code.to_json}"
+                Rails.logger.info "#{response.body.to_json}"
               end
             end
           end
@@ -146,17 +131,17 @@ module ApiMercadoLivre
                 "promotion_id" => promotion_id,
                 "promotion_type" => promotion_type
               }.to_json
-              Rails.logger.info body 
+              Rails.logger.info body
               response = HTTParty.post(url, headers: headers, body: body)
               if response.success?
                 @ativados = @ativados + 1
                 Rails.logger.info "Promoção aplicada com sucesso"
-                Rails.logger.info "#{response.body.to_json}" 
+                Rails.logger.info "#{response.body.to_json}"
               else
                 @nao_ativados = @nao_ativados + 1
                 puts "Erro no momento da ativação"
-                Rails.logger.info "#{response.code.to_json}" 
-                Rails.logger.info "#{response.body.to_json}" 
+                Rails.logger.info "#{response.code.to_json}"
+                Rails.logger.info "#{response.body.to_json}"
               end
             end
           end
@@ -167,4 +152,3 @@ module ApiMercadoLivre
 
     end
   end
-  

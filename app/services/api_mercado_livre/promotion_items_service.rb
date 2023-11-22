@@ -1,6 +1,6 @@
 module ApiMercadoLivre
   class PromotionItemsService < ApplicationService
-    def initialize(seller, promotion_id, promotion_type, offset_limit = 150)
+    def initialize(seller, promotion_id, promotion_type, offset_limit = 1000)
       @promotion_id = promotion_id
       @promotion_type = promotion_type
       @seller = seller
@@ -47,7 +47,7 @@ module ApiMercadoLivre
     end
 
     def log_successful_call
-      
+
       puts 'promotion_items_service - Chamada bem-sucedida!'
     end
 
