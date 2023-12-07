@@ -24,6 +24,7 @@ gem 'redis', '~> 4.8.1'
 # gem 'redis-rails'
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
+gem 'sidekiq-scheduler'
 
 # gem '-scheduler'
 gem 'sinatra', require: nil

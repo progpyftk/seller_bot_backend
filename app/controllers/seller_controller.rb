@@ -90,6 +90,7 @@ class SellerController < ApplicationController
 
   # monta a tabela de promocoes
   def promotions_table
+
     @items = []
     @table_list = []
     # aqui temos que filtrar apenas os sellers do user
@@ -146,6 +147,15 @@ class SellerController < ApplicationController
     seller = Seller.find(promotion_params[:seller])
     result = ApiMercadoLivre::PromotionItemsActivator.call(seller, promotion_params[:type], promotion_params[:promotion_id])
     render json: result.to_json, status: 200
+  end
+
+  def promotions_status
+    puts "Buscando processamento de promoções"
+    if PromotionStatusJob.new.perform > 0
+      render json: true, status: :ok
+    else
+      render json: false, status: :ok
+    end
   end
 
 

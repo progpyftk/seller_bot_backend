@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   post 'fulfillment/flex', to: 'fulfillment#flex_turn_on'
   get 'seller/index'
   get 'seller/promotions', to: 'seller#promotions_table'
+  get 'seller/promotions-status', to: 'seller#promotions_status'
   get 'seller/active-items', to: 'seller#active_items'
   get 'seller/auth-all', to: 'seller#auth_all'
   post 'seller/create', to: 'seller#create'

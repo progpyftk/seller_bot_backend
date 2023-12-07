@@ -254,6 +254,10 @@ GEM
       connection_pool (>= 2.3.0)
       rack (>= 2.2.4)
       redis-client (>= 0.14.0)
+    sidekiq-scheduler (5.0.3)
+      rufus-scheduler (~> 3.2)
+      sidekiq (>= 6, < 8)
+      tilt (>= 1.4.0)
     sidekiq-unique-jobs (8.0.3)
       brpoplpush-redis_script (> 0.1.1, <= 2.0.0)
       concurrent-ruby (~> 1.0, >= 1.0.5)
@@ -340,6 +344,7 @@ DEPENDENCIES
   rufus-scheduler
   selenium-webdriver
   sidekiq
+  sidekiq-scheduler
   sidekiq-unique-jobs
   sinatra
   spring

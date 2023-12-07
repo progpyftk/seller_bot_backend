@@ -45,6 +45,7 @@ services:
 
   sidekiq:
     build: .
+    command: sidekiq -r ./path/to/your_project.rb
     volumes:
       - .:/app
     environment:
