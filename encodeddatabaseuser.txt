@@ -1,3 +1,0 @@
------BEGIN CERTIFICATE-----
-bG9yZW56bw==
------END CERTIFICATE-----
