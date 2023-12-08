@@ -85,5 +85,6 @@ Rails.application.configure do
   config.hosts << /[a-z0-9-.]+\.loca.lt/
   config.hosts << "sellerbot.com.br"
   config.hosts << "api.sellerbot.com.br"
+  config.hosts << "oyster-app-vu64f.ondigitalocean.app"
 
 end
