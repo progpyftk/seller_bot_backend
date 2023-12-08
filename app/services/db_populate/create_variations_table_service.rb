@@ -78,8 +78,7 @@ module DbPopulate
           end
         end
   
-        @variation = if parsed_item['body']['variations'].present? ? true : false
-    
+        @variation = parsed_item['body']['variations'].present? ? true : false    
         {
           ml_item_id: parsed_item['body']['id'],
           variation: @variation
