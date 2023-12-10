@@ -6,7 +6,9 @@ Rails.application.configure do
   config.hosts = [
     "sellerbot.com.br",
     "api.sellerbot.com.br",
-    "oyster-app-vu64f.ondigitalocean.app"
+    "oyster-app-vu64f.ondigitalocean.app",
+    "https://sea-turtle-app-ehicf.ondigitalocean.app/",
+    "sea-turtle-app-ehicf.ondigitalocean.app/"
 
   ]
 
