@@ -8,7 +8,7 @@ Rails.application.configure do
   config.hosts = [
     "sellerbot.com.br",
     "api.sellerbot.com.br",
-    "oyster-app-vu64f.ondigitalocean.app",
+    "sea-turtle-app-2-m3wfm.ondigitalocean.app",
     "https://sea-turtle-app-ehicf.ondigitalocean.app/",
     "sea-turtle-app-ehicf.ondigitalocean.app/"
 
@@ -53,10 +53,10 @@ Rails.application.configure do
 
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
-  config.action_cable.url = 'wss://oyster-app-vu64f.ondigitalocean.app/cable'
+  config.action_cable.url = 'wss://sea-turtle-app-2-m3wfm.ondigitalocean.app/cable'
   config.action_cable.allowed_request_origins = [
-    'https://oyster-app-vu64f.ondigitalocean.app',
-    /https:\/\/oyster-app-vu64f\.ondigitalocean\.app/,
+    'https://sea-turtle-app-2-m3wfm.ondigitalocean.app',
+    /https:\/\/sea-turtle-app-2-m3wfm.ondigitalocean.app\.ondigitalocean\.app/,
     'https://sea-turtle-app-ehicf.ondigitalocean.app/',
     /https:\/\/sea-turtle-app-ehicf.\.ondigitalocean\.app/,
 

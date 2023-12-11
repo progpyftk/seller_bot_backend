@@ -87,5 +87,6 @@ Rails.application.configure do
   config.hosts << "api.sellerbot.com.br"
   config.hosts << "oyster-app-vu64f.ondigitalocean.app"
   config.hosts << "sea-turtle-app-ehicf.ondigitalocean.app"
+  config.hosts << "sea-turtle-app-2-m3wfm.ondigitalocean.app"
 
 end
