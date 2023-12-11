@@ -10,7 +10,9 @@ WORKDIR /app
 RUN bundle config build.nokogiri --use-system-libraries
 COPY package.json yarn.lock ./
 COPY . ./ 
-ENTRYPOINT ["./entrypoints/docker-entrypoint.sh"]
+COPY entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
 EXPOSE 3000
 # Run a shell
 CMD ["/bin/sh"]
