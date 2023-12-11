@@ -10,7 +10,7 @@ WORKDIR /app
 RUN bundle config build.nokogiri --use-system-libraries
 COPY package.json yarn.lock ./
 COPY . ./ 
-COPY entrypoint.sh /usr/bin/
+COPY entrypoints/entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]
 EXPOSE 3000
