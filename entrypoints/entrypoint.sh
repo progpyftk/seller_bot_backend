@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Cria os diretórios necessários se não existirem
+mkdir -p tmp/pids
+
+
 # Remove um arquivo de PID existente do Sidekiq, se houver
 if [ -f tmp/pids/sidekiq.pid ]; then
   echo "Removendo PID antigo do Sidekiq..."
