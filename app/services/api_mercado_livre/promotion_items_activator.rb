@@ -33,7 +33,7 @@ module ApiMercadoLivre
       end
 
       def activate_deal_promotion(seller, promotion_id, promotion_type)
-        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "DEAL", 5000)
+        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "DEAL", 500)
         channel_key = "#{promotion_id}_#{seller.ml_seller_id}"
         if items.present?
           items.each do |item|
@@ -48,7 +48,7 @@ module ApiMercadoLivre
 
       def activate_lightning_promotion(seller, promotion_id, promotion_type)
         Rails.logger.info "------ Anúncios aptos para a Promoção: #{promotion_id} do tipo: #{promotion_type} --------"
-        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "LIGHTNING", 5000)
+        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "LIGHTNING", 500)
         channel_key = "#{promotion_id}_#{seller.ml_seller_id}"
         if items.present?
           items.each do |item|
@@ -63,7 +63,7 @@ module ApiMercadoLivre
       def activate_marketplacecampaing_promotion(seller, promotion_id, promotion_type)
         Rails.logger.info "------ Anúncios aptos para a Promoção: #{promotion_id} do tipo: #{promotion_type} --------"
         channel_key = "#{promotion_id}_#{seller.ml_seller_id}"
-        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "MARKETPLACE_CAMPAIGN", 5000)
+        items = ApiMercadoLivre::PromotionItemsService.call(seller, promotion_id, "MARKETPLACE_CAMPAIGN", 500)
         if items.present?
           items.each do |item|
             PromotionJobTracker.job_enqueued(channel_key)
