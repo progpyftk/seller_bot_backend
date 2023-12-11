@@ -1,41 +1,49 @@
 name: seller-bot-backend
-services:
-- name: app
-  github:
-    repo: progpyftk/seller_bot_backend.git
-    branch: master
-    deploy_on_push: true
-  dockerfile_path: Dockerfile
-  http_port: 3000
-  envs:
-  - key: RAILS_ENV
-    value: production
-  - key: REDIS_URL
-    value: ${redis.REDIS_URL}
-  routes:
-  - path: /
-  health_check:
-    http_path: /
 
-- name: sidekiq
-  github:
-    repo: progpyftk/seller_bot_backend.git
-    branch: master
-    deploy_on_push: true
-  dockerfile_path: Dockerfile
-  run_command: 'bundle exec sidekiq -C config/sidekiq.yml'
-  envs:
-  - key: RAILS_ENV
-    value: production
-  - key: REDIS_URL
-    value: ${redis.REDIS_URL}
+services:
+  - name: app
+    github:
+      repo: progpyftk/seller_bot_backend.git
+      branch: master
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    http_port: 3000
+    envs:
+      - key: RAILS_ENV
+        value: production
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db-cluster-postgresql-sb.DATABASE_URL}
+      - key: REDIS_URL
+        value: ${redis.REDIS_URL}
+    routes:
+      - path: /
+    health_check:
+      http_path: /
+
+  - name: sidekiq
+    github:
+      repo: progpyftk/seller_bot_backend.git
+      branch: master
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    envs:
+      - key: RAILS_ENV
+        value: production
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db-cluster-postgresql-sb.DATABASE_URL}
+      - key: REDIS_URL
+        value: ${redis.REDIS_URL}
+    run_command: bundle exec sidekiq -C config/sidekiq.yml
 
 databases:
-- name: redis
-  engine: redis
-  version: "6"
-  production: true
-  num_nodes: 1
-  size: db-s-1vcpu-2gb
-  cluster_size: 1
-  region: nyc
+  - name: db-cluster-postgresql-sb
+    engine: PG
+    version: "12"
+    production: true
+
+  - name: redis
+    engine: redis
+    version: "latest"
+    production: true
