@@ -1,1 +1,7 @@
-:concurrency: 5
+# If you need to set up additional options for the Sidekiq process itself
+:daemon: false
+:environment: production
+
+# Specify log file for Sidekiq messages
+:logfile: ./log/sidekiq.log
+:verbose: true
