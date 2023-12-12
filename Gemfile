@@ -28,6 +28,8 @@ gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'sidekiq-scheduler'
 
+gem 'sidekiq_alive'
+
 # gem '-scheduler'
 gem 'sinatra', require: nil
 # Use Active Model has_secure_password
