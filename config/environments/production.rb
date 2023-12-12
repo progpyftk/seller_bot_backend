@@ -54,13 +54,7 @@ Rails.application.configure do
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
   config.action_cable.url = 'wss://sea-turtle-app-2-m3wfm.ondigitalocean.app/cable'
-  config.action_cable.allowed_request_origins = [
-    'https://sea-turtle-app-2-m3wfm.ondigitalocean.app',
-    /https:\/\/sea-turtle-app-2-m3wfm.ondigitalocean.app\.ondigitalocean\.app/,
-    'https://sea-turtle-app-ehicf.ondigitalocean.app/',
-    /https:\/\/sea-turtle-app-ehicf.\.ondigitalocean\.app/,
-
-  ]
+  config.action_cable.allowed_request_origins = [/https:\/\/*/]
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
 
